@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="UserCheckMapper">
+	<sql id="Base_Column_List">
+    ucId,u_Id,realName,gender,mobile,telephone,idcardType,idcardNum,cityId,email,qq,emergencyName,emergencyMobile,relation,antecedents,training,
+    idcartFrontUrl,idcartBackUrl,idcartHandUrl,enterpriseName,address,enterpriseHomepage,licenseNum,licensePictureUrl,enterpriseIntro,proposer,
+    clubName,clubLogo,clubIntro,ucFailRemarks,ucCreateTime,ucAuditUserId,ucAuditTime,ucType,ucProgress
+    </sql>
+
+
+	<select id="getvettedListPage" parameterType="page" resultType="com.op.entity.usercheck.UserCheck">
+		select
+		ucId,u.uName,realName,gender,ucType,ucCreateTime,ucProgress, su.uName AS ucAuditUserId,ucAuditTime
+		from USER_CHECK uc
+		left join users u on u.u_Id = uc.u_Id
+		left join users su on su.u_Id = uc.ucAuditUserId
+		where 1=1
+	    <if test="t.uName != null and t.uName != '' ">
+			AND u.uName LIKE CONCAT(CONCAT('%', #{t.uName}),'%')
+		</if>  
+	    <if test="t.ucType != null and t.ucType != ''  and t.ucType != 0 ">
+			AND ucType = #{t.ucType}
+		</if>   
+	    <if test="t.ucProgress != null and t.ucProgress != ''  and t.ucProgress != 0 ">
+			AND ucProgress = #{t.ucProgress}
+		</if>   
+		order by UCCREATETIME desc
+	</select>
+
+
+	<select id="findById" parameterType="string" resultType="com.op.entity.usercheck.UserCheck">
+		select
+		    ucId, u.uName,realName,gender,mobile,telephone,idcardType,idcardNum,cityId,email,
+		    qq,uc.emergencyName,uc.emergencyMobile,uc.relation,antecedents,training,
+		    idcartFrontUrl,idcartBackUrl,idcartHandUrl,enterpriseName,address,
+		    enterpriseHomepage,licenseNum,licensePictureUrl,enterpriseIntro,proposer,
+		    clubName,clubLogo,clubIntro,ucFailRemarks,ucCreateTime,ucAuditUserId,ucAuditTime,ucType,ucProgress
+		from USER_CHECK uc
+		left join users u on u.u_Id = uc.u_Id
+		where ucId = #{ucId} 
+	</select>
+
+   <!-- 修改开始审核状态 -->
+   <update id="updateStartVettedState" parameterType="string" >
+	   update USER_CHECK set  UCPROGRESS = 2 ,UCAUDITTIME = now()
+	   where UCPROGRESS = 1 and ucId = #{ucId}
+   </update>
+   
+   <!-- 修改认证状态 -->
+   <update id="updateVettedState" parameterType="java.util.HashMap" >
+	   update USER_CHECK set  UCPROGRESS =  #{ucProgress}, UCAUDITTIME = now() ,
+	   UCAUDITUSERID = #{userId}
+	   <if test="ucFailRemarks != null and ucFailRemarks != ''">
+	    	, UCFAILREMARKS = #{ucFailRemarks}
+	    </if>
+	   where ucId = #{ucId}
+   </update>
+	
+</mapper>

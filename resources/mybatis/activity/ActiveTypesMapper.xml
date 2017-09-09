@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="activeTypesMapper">
+	<sql id="Base_Column_List">
+    at_id,at_active_id ,at_type_id 
+    </sql>
+
+    <resultMap type="com.op.entity.activity.ActiveTypes" id="ActiveTypesReturnMap">
+      <id column="at_id" property="at_id"/>
+   </resultMap>
+   
+   <!-- 插入活动类型数据 -->
+   <insert id="insertintoActiveTypes" parameterType="java.util.List" useGeneratedKeys="false" >
+	   insert into activetypes(at_active_id ,at_type_id)
+	   VALUES
+	   <foreach collection="list" item="item" separator="," >
+		(
+			#{item.at_active_id},#{item.at_type_id}
+		)
+	   </foreach>
+   </insert>
+   
+   <!-- 根据活动查询所有该活动对应的类型 集合-->
+   <select id="findTypesByActiveId" parameterType="int" resultType="com.op.entity.activity.ActiveTypes" >
+   select <include refid="Base_Column_List"/>,cic.cl_name
+   FROM activeTypes act
+   LEFT JOIN classification cic ON act.at_type_id = cic.cl_id
+   where at_active_id=#{id}
+   </select>
+</mapper>

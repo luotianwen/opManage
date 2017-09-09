@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="commentProjectMapper">
+	 
+
+	<select id="getCommentProjectListPage" parameterType="page" resultType="com.op.splot.entity.CommentProject">
+		  SELECT
+		<![CDATA[
+        id ,cid ,pid ,num 
+	    ]]>
+		  FROM s_comment_project 
+		WHERE 1=1
+	</select>
+	 
+	<select id="getCommentProjectById" parameterType="com.op.splot.entity.CommentProject" resultType="com.op.splot.entity.CommentProject">
+		SELECT
+		 <![CDATA[
+        id ,cid ,pid ,num 
+	    
+	        FROM s_comment_project 
+	        WHERE 
+
+		        id = #{id } 
+	    ]]>
+	</select>
+	<insert id="saveCommentProject" parameterType="com.op.splot.entity.CommentProject">
+		 <![CDATA[
+        INSERT INTO s_comment_project (
+        	id ,
+        	cid ,
+        	pid ,
+        	num 
+        ) VALUES (
+        	#{id} ,
+        	#{cid} ,
+        	#{pid} ,
+        	#{num} 
+        )
+    ]]>
+		<selectKey keyProperty="id" resultType="int">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+	</insert>
+	<update id="updateCommentProject" parameterType="com.op.splot.entity.CommentProject">
+		<![CDATA[
+        UPDATE s_comment_project SET
+	        cid = #{cid} ,
+	        pid = #{pid} ,
+	        num = #{num} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+	 
+	 <!-- 根据点评ID查询 -->
+	 <select id="findCommentProjectByCid" parameterType="String" resultType="com.op.splot.entity.CommentProject">
+	 	select scp.id ,cid ,pid ,num ,sp.name cname
+	    FROM s_comment_project scp
+	    left join s_project sp on sp.id = scp.pid
+	    where cid = #{id}
+	 </select>
+	 
+</mapper>

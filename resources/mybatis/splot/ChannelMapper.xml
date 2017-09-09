@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="channelMapper">
+	 
+
+	<select id="getChannelListPage" parameterType="page" resultType="com.op.splot.entity.Channel">
+		  SELECT
+		<![CDATA[
+        id ,name ,payurl ,pickup ,contacts ,phone ,cdate ,status 
+	    ]]>
+		  FROM s_channel 
+		WHERE 1=1
+		<if test="t!= null and t!= '' ">
+			AND name LIKE CONCAT(CONCAT('%', #{t}),'%')
+		</if>
+	</select>
+	
+	<select id="getChannelList" parameterType="String" resultType="com.op.splot.entity.Channel">
+		  SELECT
+		<![CDATA[
+        id ,name ,payurl ,pickup ,contacts ,phone ,cdate ,status 
+	    ]]>
+		  FROM s_channel 
+		WHERE 1=1
+	</select>
+	 
+	<select id="getChannelById" parameterType="String" resultType="com.op.splot.entity.Channel">
+		SELECT
+		 <![CDATA[
+        id ,name ,payurl ,pickup ,contacts ,phone ,cdate ,status 
+	    
+	        FROM s_channel 
+	        WHERE 
+
+		        id = #{id } 
+	    ]]>
+	</select>
+	<insert id="saveChannel" parameterType="com.op.splot.entity.Channel">
+		 <![CDATA[
+        INSERT INTO s_channel (
+        	id ,
+        	name ,
+        	payurl ,
+        	pickup ,
+        	contacts ,
+        	phone ,
+        	cdate ,
+        	status 
+        ) VALUES (
+        	#{id} ,
+        	#{name} ,
+        	#{payurl} ,
+        	#{pickup} ,
+        	#{contacts} ,
+        	#{phone} ,
+        	now() ,
+        	#{status} 
+        )
+    ]]>
+		<selectKey keyProperty="id" resultType="int">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+	</insert>
+	<update id="updateChannel" parameterType="com.op.splot.entity.Channel">
+		<![CDATA[
+        UPDATE s_channel SET
+	        name = #{name} ,
+	        payurl = #{payurl} ,
+	        pickup = #{pickup} ,
+	        contacts = #{contacts} ,
+	        phone = #{phone} ,
+	        cdate =now() ,
+	        status = #{status} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+	 
+</mapper>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="spotlevelMapper">
+	 
+
+	<select id="getSpotlevelListPage" parameterType="page" resultType="com.op.splot.entity.Spotlevel">
+		  SELECT
+		<![CDATA[
+        id ,name ,status ,cdate ,notes 
+	    ]]>
+		  FROM s_spotlevel 
+		WHERE 1=1
+	</select>
+	<select id="getSpotlevelList"   resultType="com.op.splot.entity.Spotlevel">
+		SELECT
+
+        id ,name
+
+		FROM s_spotlevel
+		WHERE status=1
+	</select>
+
+	<select id="getSpotlevelById" parameterType="String" resultType="com.op.splot.entity.Spotlevel">
+		SELECT
+		 <![CDATA[
+        id ,name ,status ,cdate ,notes 
+	    
+	        FROM s_spotlevel 
+	        WHERE 
+
+		        id = #{id } 
+	    ]]>
+	</select>
+	<insert id="saveSpotlevel" parameterType="com.op.splot.entity.Spotlevel">
+		 <![CDATA[
+        INSERT INTO s_spotlevel (
+        	name ,
+        	status ,
+        	cdate ,
+        	notes 
+        ) VALUES (
+        	#{name} ,
+        	1 ,
+        	now() ,
+        	#{notes} 
+        )
+    ]]>
+	</insert>
+	<update id="updateSpotlevel" parameterType="com.op.splot.entity.Spotlevel">
+		<![CDATA[
+        UPDATE s_spotlevel SET
+	        name = #{name} ,
+	        status = #{status} ,
+	        cdate = now() ,
+	        notes = #{notes} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+	 
+</mapper>

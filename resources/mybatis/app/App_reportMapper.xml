@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 举报(app_report)Mapper -->
+<mapper namespace="app_reportMapper">
+	<!--mybatis ehcache缓存配置 -->
+	<!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+	<!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+
+	<sql id="Base_Column_List">
+		r_id,r_cuser ,r_report_user ,r_cdate ,r_reason ,pd_id ,pc_id ,pr_id ,r_deal_user
+		,r_deal_time ,r_deal_remark ,r_deal_result
+	</sql>
+
+	<resultMap type="com.app.entity.photo.App_report" id="App_reportReturnMap">
+		<!-- id -->
+		<id column="r_id" property="r_id" />
+		<!-- 举报人 -->
+		<result column="r_cuser" property="r_cuser" />
+		<!-- 被举报人 -->
+		<result column="r_report_user" property="r_report_user" />
+		<!-- 举报时间 -->
+		<result column="r_cdate" property="r_cdate" />
+		<!-- 举报原因 -->
+		<result column="r_reason" property="r_reason" />
+		<!-- 描述ID -->
+		<result column="pd_id" property="pd_id" />
+		<!-- 评论ID -->
+		<result column="pc_id" property="pc_id" />
+		<!-- 回复ID -->
+		<result column="pr_id" property="pr_id" />
+		<!-- 处理人 -->
+		<result column="r_deal_user" property="r_deal_user" />
+		<!-- 处理时间 -->
+		<result column="r_deal_time" property="r_deal_time" />
+		<!-- 处理备注 -->
+		<result column="r_deal_remark" property="r_deal_remark" />
+		<!-- 处理结果（0：未处理；1：已处理） -->
+		<result column="r_deal_result" property="r_deal_result" />
+	</resultMap>
+
+	<!-- 查询所有举报用户 -->
+	<select id="findAllReport" parameterType="Page" resultMap="App_reportReturnMap">
+		select
+			r_id,users.uName r_cuser ,report.uName r_report_user ,r_cdate ,r_reason ,pd_id ,pc_id ,pr_id ,deal.uName r_deal_user
+			,r_deal_time ,r_deal_remark ,r_deal_result
+		from app_report
+		left join users on users.u_id = r_cuser
+		left join users report on report.u_id = r_report_user
+		left join users deal on deal.u_id = r_deal_user
+		
+	</select>
+	
+	<!-- 根据ID查询举报用户 -->
+	<select id="findReportById" parameterType="String" resultMap="App_reportReturnMap">
+		select
+			r_id,users.uName r_cuser ,report.uName r_report_user_name,r_report_user ,r_cdate ,r_reason ,pd_id ,pc_id ,pr_id ,deal.uName r_deal_user
+			,r_deal_time ,r_deal_remark ,r_deal_result
+		from app_report
+		left join users on users.u_id = r_cuser
+		left join users report on report.u_id = r_report_user
+		left join users deal on deal.u_id = r_deal_user
+		where r_id = #{id}
+	</select>
+
+	<!-- 修改举报用户 -->
+	<update id="updateReport" parameterType="com.app.entity.photo.App_report">
+		update app_report set
+		r_deal_user = #{r_deal_user},
+		r_deal_time = now(),
+		r_deal_remark = #{r_deal_remark},
+		r_deal_result = #{r_deal_result}
+		where r_id = #{r_id}
+	</update>
+
+
+	<!-- 举报用户 -->
+	<insert id="savereport" parameterType="com.app.entity.photo.App_report">
+	    insert into app_report
+	    (
+	    	r_cuser ,r_report_user ,r_reason ,pd_id ,pc_id ,pr_id 
+	    )
+	    values
+	    (
+	    	#{r_cuser },#{r_report_user },#{r_reason },#{pd_id },#{pc_id },#{pr_id }
+	    )
+	</insert>
+</mapper>

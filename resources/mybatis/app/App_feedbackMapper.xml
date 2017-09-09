@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- APP反馈(app_feedback)Mapper -->
+<mapper namespace="app_feedbackMapper">
+	<!--mybatis ehcache缓存配置 -->
+	<!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+	<!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+
+	<sql id="Base_Column_List">
+		f_id,f_content ,f_user_id ,f_linkman ,f_create_time ,f_deal_user ,f_deal_result
+		,f_deal_time ,f_deal_remark
+	</sql>
+
+	<resultMap type="com.app.entity.feedback.App_feedback" id="App_feedbackReturnMap">
+		<!-- id -->
+		<id column="f_id" property="f_id" />
+		<!-- 反馈内容 -->
+		<result column="f_content" property="f_content" />
+		<!-- 反馈用户 -->
+		<result column="f_user_id" property="f_user_id" />
+		<!-- 联系方式 -->
+		<result column="f_linkman" property="f_linkman" />
+		<!-- 创建时间 -->
+		<result column="f_create_time" property="f_create_time" />
+		<!-- 处理人 -->
+		<result column="f_deal_user" property="f_deal_user" />
+		<!-- 处理状态（1：未处理；2：已处理） -->
+		<result column="f_deal_result" property="f_deal_result" />
+		<!-- 处理时间 -->
+		<result column="f_deal_time" property="f_deal_time" />
+		<!-- 处理备注 -->
+		<result column="f_deal_remark" property="f_deal_remark" />
+	</resultMap>
+
+	<!-- 查询所有APP反馈 -->
+	<select id="findAllapp_feedbackPage" parameterType="Page" resultType="com.app.entity.feedback.App_feedback">
+		select
+		f_id ,
+		f_content ,
+		users.uName f_user_id ,
+		f_linkman ,
+		f_create_time ,
+		deal.uName f_deal_user ,
+		f_deal_result ,
+		f_deal_time ,
+		f_deal_remark
+		from app_feedback
+		left join users on users.u_id = f_user_id
+		left join users deal on deal.u_id = f_deal_user
+		order by f_create_time desc
+	</select>
+
+	
+	<resultMap type="com.app.dto.feedback.App_feedbackDTO" id="App_feedbackDTOResultMap">
+		<id column="f_id" property="f_id"/>
+		<!-- 反馈图片 -->
+		<collection property="photos" ofType="com.app.entity.feedback.App_feedback_photo" column="f_id" select="app_feedback_photoMapper.findapp_feedback_photoById" ></collection>
+	</resultMap>
+
+	<!-- 根据ID查询APP反馈 -->
+	<select id="findapp_feedbackById" parameterType="String" resultMap="App_feedbackDTOResultMap">
+		select
+		f_id ,
+		f_content ,
+		users.uName f_user_id ,
+		f_linkman ,
+		f_create_time ,
+		deal.uName f_deal_user ,
+		f_deal_result ,
+		f_deal_time ,
+		f_deal_remark
+		from app_feedback
+		left join users on users.u_id = f_user_id
+		left join users deal on deal.u_id = f_deal_user
+		
+		where
+		f_id = #{f_id}
+	</select>
+
+	<!-- 修改APP反馈 -->
+	<update id="updateapp_feedback" parameterType="com.app.entity.feedback.App_feedback">
+		update
+		app_feedback set
+		f_deal_user = #{f_deal_user},
+		f_deal_result = #{f_deal_result},
+		f_deal_time = now(),
+		f_deal_remark = #{f_deal_remark}
+		where
+		f_id = #{f_id}
+	</update>
+
+</mapper>

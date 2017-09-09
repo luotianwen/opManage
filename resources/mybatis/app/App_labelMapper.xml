@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 照片标签(app_label)Mapper -->
+<mapper namespace="app_labelMapper">
+	<!--mybatis ehcache缓存配置 -->
+	<!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+	<!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+
+	<sql id="Base_Column_List">
+		l_id,l_name ,l_status
+	</sql>
+
+	<resultMap type="com.app.entity.photo.App_label" id="App_labelReturnMap">
+		<!-- id -->
+		<id column="l_id" property="l_id" />
+		<!-- 标签内容 -->
+		<result column="l_name" property="l_name" />
+		<!-- 状态(0：正常；1：暂停使用) -->
+		<result column="l_status" property="l_status" />
+	</resultMap>
+	
+	<!-- 查询所有照片标签 -->
+	<select id="findAllLabel" parameterType="Page" resultMap="App_labelReturnMap">
+		select l_id,l_name ,l_status from app_label
+		where 1=1
+		<if test="t!=null and t!=''">
+			and l_name like CONCAT(CONCAT('%', #{t}),'%')
+		</if>
+		order by l_id desc
+	</select>
+	
+	<!-- 根据ID查询照片标签 -->
+	<select id="findLabelById" parameterType="String" resultMap="App_labelReturnMap">
+		select l_id,l_name ,l_status from app_label
+		where l_id = #{id}
+	</select>
+	
+	<!-- 修改照片标签 -->
+	<update id="updateLabel" parameterType="com.app.entity.photo.App_label">
+		update app_label set
+		l_name = #{l_name},
+		l_status = #{l_status}
+		where l_id = #{l_id}
+	</update>
+	
+	<!-- 新增照片标签 -->
+	<insert id="saveLabel" parameterType="com.app.entity.photo.App_label" useGeneratedKeys="true" keyProperty="l_id">
+		insert into app_label
+		(
+			l_name
+		)
+		values
+		(
+			#{l_name}
+		)
+	</insert>
+	
+	<!-- 删除照片标签 -->
+	<update id="deleteLabel" parameterType="java.util.Map">
+		update app_label set
+		l_statuc = #{type}
+		where l_id = #{id}
+	</update>
+	
+	<!-- 查询照片标签是否存在 -->
+	<select id="findLabelCount" parameterType="java.util.Map" resultType="int">
+		select count(0) from app_label
+		where l_name = #{l_name} and l_id != #{l_id}
+	</select>
+	
+
+</mapper>

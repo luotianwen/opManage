@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="consignee_ProvincesMapper">
+    <!--mybatis ehcache缓存配置 -->
+    <cache type="org.mybatis.caches.ehcache.LoggingEhcache" />
+	<!-- 查询所有省 -->
+	<select id="selectProvinces" resultType="com.op.entity.consignee_provinces.Consignee_Provinces">
+		select * from consignee_provinces
+	</select>
+
+</mapper>

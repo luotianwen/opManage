@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tables>
+	<!-- 用户表 begin -->
+	<table name="USERS">
+		<column name="UTYPE">
+			<entry key="1" value="个人发布者" />
+			<entry key="2" value="企业" />
+			<entry key="3" value="普通用户" />
+		</column>
+		<column name="USEX">
+			<entry key="1" value="男" />
+			<entry key="2" value="女" />
+		</column>
+	</table>
+
+	<!-- 用户审核表 begin -->
+	<table name="USER_CHECK">
+		<column name="UTYPE">
+			<entry key="1" value="个人发布者" />
+			<entry key="2" value="企业" />
+		</column>
+		<column name="UCPROGRESS">
+			<entry key="1" value="提交申请" />
+			<entry key="2" value="人工审核中" />
+			<entry key="3" value="审核完成" />
+			<entry key="4" value=">审核失败" />
+		</column>
+	</table>
+
+	<!-- 领队评分表 begin -->
+	<table name="SCORE">
+		<column name="STYPE">
+			<entry key="1" value="延时" />
+			<entry key="2" value="恶意敲诈" />
+			<entry key="3" value="安全问题" />
+			<entry key="4" value="言语文明" />
+			<entry key="5" value="违规操作" />
+		</column>
+		<column name="SSTATE">
+			<entry key="1" value="待反馈" />
+			<entry key="2" value="已处理" />
+			<entry key="3" value="驳回" />
+		</column>
+	</table>
+</tables>

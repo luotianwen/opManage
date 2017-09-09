@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- 地点服务图片(副)(pointServiceImgDeputy)Mapper -->
+<mapper namespace="pointServiceImgDeputyMapper">
+    <!--mybatis ehcache缓存配置 -->
+    <!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+    <!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+    <!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>  -->
+
+	<sql id="Base_Column_List">
+    psi_id,psi_url ,psi_upload_time ,psi_upload_user_id ,psi_point_service_id 
+    </sql>
+
+    <resultMap type="com.op.entity.pointService.PointServiceImgDeputy" id="PointServiceImgDeputyReturnMap">
+		<!-- id -->
+      <id column="psi_id" property="psi_id"/>
+		<!-- 图片地址 -->
+      <result column="psi_url" property="psi_url"/>
+		<!-- 上传时间 -->
+      <result column="psi_upload_time" property="psi_upload_time"/>
+		<!-- 上传作者id -->
+      <result column="psi_upload_user_id" property="psi_upload_user_id"/>
+		<!-- 地点服务id -->
+      <result column="psi_point_service_id" property="psi_point_service_id"/>
+   </resultMap>
+   
+       <!-- 根据地点服务ID获取数据 -->
+  	<select id="getDataByPsId" resultType="com.op.entity.pointService.PointServiceImgDeputy" parameterType="String">
+  		select 
+  			psi_id,psi_url ,psi_upload_time ,psi_upload_user_id ,psi_point_service_id 
+  		from 
+  			PointServiceImgDeputy
+  		where
+  			psi_point_service_id = #{psId}	
+  	</select>
+	
+</mapper>

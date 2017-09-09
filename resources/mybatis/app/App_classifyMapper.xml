@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 照片分类(app_classify)Mapper -->
+<mapper namespace="app_classifyMapper">
+	<!--mybatis ehcache缓存配置 -->
+	<!-- 以下两个<cache>分类二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+	<!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+
+	<sql id="Base_Column_List">
+		c_id,c_name ,c_status
+	</sql>
+
+	<resultMap type="com.app.entity.photo.App_classify" id="App_classifyReturnMap">
+		<!-- id -->
+		<id column="c_id" property="c_id" />
+		<!-- 分类内容 -->
+		<result column="c_name" property="c_name" />
+		<!-- 状态(0：正常；1：暂停使用) -->
+		<result column="c_status" property="c_status" />
+	</resultMap>
+
+	<!-- 查询所有照片分类 -->
+	<select id="findAllClassify" parameterType="Page" resultMap="App_classifyReturnMap">
+		select c_id,c_name ,c_status from app_classify
+		where 1=1
+		<if test="t!=null and t!=''">
+			and c_name like CONCAT(CONCAT('%', #{t}),'%')
+		</if>
+	</select>
+	
+	<!-- 根据ID查询照片分类 -->
+	<select id="findClassifyById" parameterType="String" resultMap="App_classifyReturnMap">
+		select c_id,c_name ,c_status from app_classify
+		where c_id = #{id}
+	</select>
+	
+	<!-- 修改照片分类 -->
+	<update id="updateClassify" parameterType="com.app.entity.photo.App_classify">
+		update app_classify set
+		c_name = #{c_name},
+		c_status = #{c_status}
+		where c_id = #{c_id}
+	</update>
+	
+	<!-- 新增照片分类 -->
+	<insert id="saveClassify" parameterType="com.app.entity.photo.App_classify">
+		insert into app_classify
+		(
+			c_name
+		)
+		values
+		(
+			#{c_name}
+		)
+	</insert>
+	
+	<!-- 删除照片分类 -->
+	<update id="deleteClassify" parameterType="java.util.Map">
+		update app_classify set
+		c_statuc = #{type}
+		where c_id = #{id}
+	</update>
+
+</mapper>

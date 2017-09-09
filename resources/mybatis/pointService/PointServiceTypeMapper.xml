@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pointServiceTypeMapper">
+	<sql id="Base_Column_List">
+		id,categoryId ,categoryName ,categoryLevel ,parentId ,oneTypeId ,updateTime
+		,updateUserId ,orderNumber ,isDelete ,isLock
+	</sql>
+
+	<resultMap type="com.op.entity.pointService.PointServiceType" id="PointServiceTypeReturnMap">
+		<id column="id" property="id" />
+		<result column="categoryId" property="categoryId" />
+		<result column="categoryName" property="categoryName" />
+		<result column="categoryLevel" property="categoryLevel" />
+		<result column="parentId" property="parentId" />
+		<result column="oneTypeId" property="oneTypeId" />
+		<result column="updateTime" property="updateTime" />
+		<result column="updateUserId" property="updateUserId" />
+		<result column="orderNumber" property="orderNumber" />
+		<result column="isLock" property="isLock" />
+		
+		<collection property="list" ofType="com.op.entity.pointService.PointServiceType" column="oneTypeId"
+			 select="pointServiceTypeMapper.typeChildrensAll" >
+    	</collection>
+	</resultMap>
+
+	<select id="oneTypeAll" resultMap="PointServiceTypeReturnMap">
+	select 
+	pst.id,pst.categoryId ,pst.categoryName ,pst.categoryLevel ,pst.parentId ,pst.oneTypeId ,pst.updateTime
+	,pst.updateUserId ,pst.orderNumber ,pst.isLock
+	,u.uName updateUserName
+	from pointServiceType pst
+ 	left join users u on pst.UPDATEUSERID = u.u_id
+	where categoryLevel=1 and isDelete=0
+	order by orderNumber
+	</select>
+	
+	<select id="typeChildrensAll" parameterType="String" resultType="com.op.entity.pointService.PointServiceType">
+	select 
+	pst.id,pst.categoryId ,pst.categoryName ,pst.categoryLevel ,pst.parentId ,pst.oneTypeId ,pst.updateTime
+	,pst.updateUserId ,pst.orderNumber ,pst.isLock
+	,u.uName updateUserName
+	from pointServiceType pst
+ 	left join users u on pst.UPDATEUSERID = u.u_id
+	where categoryLevel != 1 and oneTypeId=#{oneTypeId} and isDelete=0
+	order by orderNumber
+	</select>
+	
+	
+	
+	<insert id="addTypes" parameterType="com.op.dto.pointService.InsertCategoryDTO" useGeneratedKeys="false">
+	 
+	  insert into pointServiceType 
+	  (id,categoryId, categoryLevel ,parentId ,oneTypeId ,updateTime ,updateUserId , categoryName , orderNumber)
+	  
+	  SELECT  
+	   POINTSERVICETYPE_SEQUENCE.NEXTVAL
+	  ,POINT_SERVICE_TYPE_CATEGORYID.NEXTVAL
+	  ,#{categoryLevel}
+	  ,#{parentId}
+	  
+	  <choose>
+	  	<when test="oneTypeId == 0">,POINT_SERVICE_TYPE_CATEGORYID.NEXTVAL</when>
+	  	<otherwise>,#{oneTypeId}</otherwise>
+	  </choose>
+	  
+	  ,#{updateTime}
+	  ,#{updateUserId}
+	  ,A.* from(
+	  
+	  <foreach collection="category" item="item" index="index" separator="UNION ALL">
+	   SELECT
+	   #{category[${index}].categoryName},
+	   #{category[${index}].orderNumber}
+	   FROM DUAL
+	  </foreach>
+	  
+	  ) A
+	</insert>
+	
+	
+	<update id="updateCategoryIsDelete" parameterType="java.util.Map">
+	update pointServiceType set isDelete=10
+	where categoryId in(
+	<choose>
+		<when test="level == '4'">#{categoryId}</when>
+		
+		<when test="level == '3'">
+		select categoryId from pointServiceType where (categoryLevel=4 and parentId=#{categoryId}) or (CATEGORYID=#{categoryId} and categoryLevel=3)
+		</when>
+		
+		<when test="level == '2'">
+		select pst4.CATEGORYID from pointServiceType pst3
+		left join pointServiceType pst4 on pst3.CATEGORYID = pst4.PARENTID and pst4.CATEGORYLEVEL=4
+		where pst3.CATEGORYLEVEL = 3 and pst3.PARENTID=#{categoryId}
+		
+		UNION ALL
+		
+		select categoryId from pointServiceType where (categoryLevel=3 and parentId=#{categoryId}) or (CATEGORYID=#{categoryId} and categoryLevel=2)
+		</when>
+		
+		<otherwise>
+		select pst4.CATEGORYID from pointServiceType pst2
+		left join pointServiceType pst3 on pst2.CATEGORYID = pst3.PARENTID and pst3.CATEGORYLEVEL=3
+		left join pointServiceType pst4 on pst3.CATEGORYID = pst4.PARENTID and pst4.CATEGORYLEVEL=4
+		where pst2.CATEGORYLEVEL = 2 and pst2.PARENTID=#{categoryId}
+		
+		UNION ALL
+		
+		select pst3.CATEGORYID from pointServiceType pst2
+		left join pointServiceType pst3 on pst2.CATEGORYID = pst3.PARENTID and pst3.CATEGORYLEVEL=3
+		where pst2.CATEGORYLEVEL = 2 and pst2.PARENTID=#{categoryId}
+		
+		UNION ALL
+		
+		select categoryId from pointServiceType where (categoryLevel=2 and parentId=#{categoryId}) or (CATEGORYID=#{categoryId} and categoryLevel=1)
+		</otherwise>
+	</choose>
+	
+	)
+	</update>
+
+
+	<update id="editType" parameterType="java.util.Map">
+	update pointServiceType set categoryName=#{categoryName},orderNumber=#{orderNumber},updateTime=#{updateTime},updateUserId=#{updateUserId}
+	where id=#{id}
+	</update>
+	
+	<update id="lockOrUnLock" parameterType="java.util.Map" >
+	update pointServiceType set updateUserId=#{updateUserId},updateTime=#{updateTime}
+	<choose>
+		<when test="isLock == 0">,isLock=10</when>
+		<otherwise>,isLock=0</otherwise>
+	</choose>
+	where id=#{id}
+	</update>
+</mapper>

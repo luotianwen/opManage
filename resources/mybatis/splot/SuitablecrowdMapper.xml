@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="suitablecrowdMapper">
+
+
+	<select id="getSuitablecrowdList"  resultType="com.op.splot.entity.Suitablecrowd">
+		SELECT
+        id ,name
+		FROM s_suitablecrowd
+		WHERE status=1
+	</select>
+	<select id="getSuitablecrowdListPage" parameterType="page" resultType="com.op.splot.entity.Suitablecrowd">
+		  SELECT
+		<![CDATA[
+        id ,name ,status ,cdate ,notes 
+	    ]]>
+		  FROM s_suitablecrowd 
+		WHERE 1=1
+	</select>
+	 
+	<select id="getSuitablecrowdById" parameterType="String" resultType="com.op.splot.entity.Suitablecrowd">
+		SELECT
+		 <![CDATA[
+        id ,name ,status ,cdate ,notes 
+	    
+	        FROM s_suitablecrowd 
+	        WHERE 
+
+		        id = #{id } 
+	    ]]>
+	</select>
+	<insert id="saveSuitablecrowd" parameterType="com.op.splot.entity.Suitablecrowd">
+		 <![CDATA[
+        INSERT INTO s_suitablecrowd (
+        	name ,
+        	status ,
+        	cdate ,
+        	notes 
+        ) VALUES (
+        	#{name} ,
+        	1 ,
+        	now() ,
+        	#{notes} 
+        )
+    ]]>
+		<selectKey keyProperty="id" resultType="int">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+	</insert>
+	<update id="updateSuitablecrowd" parameterType="com.op.splot.entity.Suitablecrowd">
+		<![CDATA[
+        UPDATE s_suitablecrowd SET
+	        name = #{name} ,
+	        status = #{status} ,
+	        cdate = now() ,
+	        notes = #{notes} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+	 
+</mapper>

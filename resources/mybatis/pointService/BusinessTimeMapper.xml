@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 地点服务营业日(businessTime)Mapper -->
+<mapper namespace="businessTimeMapper">
+	<!--mybatis ehcache缓存配置 -->
+	<!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+	<!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+
+	<sql id="Base_Column_List">
+		psabd_id,psabd_start_date ,psabd_end_date ,psabd_point_service_id
+	</sql>
+
+	<resultMap type="com.op.entity.pointService.BusinessTime" id="BusinessTimeReturnMap">
+		<!-- id -->
+		<id column="psabd_id" property="psabd_id" />
+		<!-- 营业开始时间 -->
+		<result column="psabd_start_date" property="psabd_start_date" />
+		<!-- 营业结束时间 -->
+		<result column="psabd_end_date" property="psabd_end_date" />
+		<!-- 地点服务ID -->
+		<result column="psabd_point_service_id" property="psabd_point_service_id" />
+	</resultMap>
+
+
+
+
+	<!-- 添加审核成功数据 -->
+	<insert id="saveByCheck" parameterType="java.util.Map" useGeneratedKeys="false">
+		insert into BusinessTime (psabd_id,psabd_start_date ,psabd_end_date ,psabd_point_service_id )
+		select
+		psabd_id,psabd_start_date ,psabd_end_date ,#{update_id} as psabd_point_service_id
+		from BusinessTimeDeputy
+		where psabd_point_service_id = #{ps_id}
+	</insert>
+	
+	<!-- 删除之前营业时间 -->
+	<delete id="deleteByCheck" parameterType="String">
+		delete from BusinessTime
+		where psabd_point_service_id = #{update_id}
+	</delete>
+	
+	
+</mapper>

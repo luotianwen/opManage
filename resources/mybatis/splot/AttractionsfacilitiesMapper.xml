@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="attractionsfacilitiesMapper">
+
+
+	<select id="getAttractionsfacilitiesList"   resultType="com.op.splot.entity.Attractionsfacilities">
+		SELECT
+
+        id ,name
+
+		FROM s_attractionsfacilities
+		WHERE status=1
+	</select>
+	<select id="getAttractionsfacilitiesListPage" parameterType="page" resultType="com.op.splot.entity.Attractionsfacilities">
+		  SELECT
+		<![CDATA[
+        id ,name ,status ,cdate ,notes 
+	    ]]>
+		  FROM s_attractionsfacilities 
+		WHERE 1=1
+	</select>
+	 
+	<select id="getAttractionsfacilitiesById" parameterType="String" resultType="com.op.splot.entity.Attractionsfacilities">
+		SELECT
+		 <![CDATA[
+        id ,name ,status ,cdate ,notes 
+	    
+	        FROM s_attractionsfacilities 
+	        WHERE 
+
+		        id = #{id } 
+	    ]]>
+	</select>
+	<insert id="saveAttractionsfacilities" parameterType="com.op.splot.entity.Attractionsfacilities">
+		 <![CDATA[
+        INSERT INTO s_attractionsfacilities (
+        	name ,
+        	status ,
+        	cdate ,
+        	notes 
+        ) VALUES (
+        	#{name} ,
+        	1 ,
+        	now() ,
+        	#{notes} 
+        )
+    ]]>
+	</insert>
+	<update id="updateAttractionsfacilities" parameterType="com.op.splot.entity.Attractionsfacilities">
+		<![CDATA[
+        UPDATE s_attractionsfacilities SET
+	        name = #{name} ,
+	        status = #{status} ,
+	        cdate = now() ,
+	        notes = #{notes} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+	 
+</mapper>

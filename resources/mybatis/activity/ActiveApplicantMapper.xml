@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="activeApplicantMapper">
+	<sql id="Base_Column_List">
+	    aa_id,asu_id ,aa_user_name ,aa_user_sex ,aa_user_phone ,aa_user_certificates_type ,
+	    aa_user_certificates_num ,aa_active_id ,aa_state ,aa_refund_flag ,aa_refund_state ,
+	    aa_refund_price ,aa_refund_time ,aa_last_update_time ,aa_last_update_user ,
+	    aa_refund_user ,aa_refund_area ,aa_leader_refund_area ,refund_batch_number ,
+	    aa_refund_date ,aa_signup_linkman,aa_create_time,aa_user_id
+    </sql>
+
+    <resultMap type="com.op.entity.activity.ActiveApplicant" id="ActiveApplicantReturnMap">
+      <id column="aa_id" property="aa_id"/>
+      <result column="asu_id" property="asu_id"/>
+      <result column="aa_user_name" property="aa_user_name"/>
+      <result column="aa_user_sex" property="aa_user_sex"/>
+      <result column="aa_user_phone" property="aa_user_phone"/>
+      <result column="aa_user_certificates_type" property="aa_user_certificates_type"/>
+      <result column="aa_user_certificates_num" property="aa_user_certificates_num"/>
+      <result column="aa_active_id" property="aa_active_id"/>
+      <result column="aa_state" property="aa_state"/>
+      <result column="aa_refund_flag" property="aa_refund_flag"/>
+      <result column="aa_refund_state" property="aa_refund_state"/>
+      <result column="aa_refund_price" property="aa_refund_price"/>
+      <result column="aa_refund_time" property="aa_refund_time"/>
+      <result column="aa_last_update_time" property="aa_last_update_time"/>
+      <result column="aa_last_update_user" property="aa_last_update_user"/>
+      <result column="aa_refund_user" property="aa_refund_user"/>
+      <result column="aa_refund_area" property="aa_refund_area"/>
+      <result column="aa_leader_refund_area" property="aa_leader_refund_area"/>
+      <result column="refund_batch_number" property="refund_batch_number"/>
+      <result column="aa_refund_date" property="aa_refund_date"/>
+      <result column="aa_signup_linkman" property="aa_signup_linkman"/>
+      <result column="aa_create_time" property="aa_create_time"/>
+      <result column="aa_user_id" property="aa_user_id"/>
+   </resultMap>
+   
+ <select id="findApplicantByAsuId" parameterType="string" resultType="com.op.entity.activity.ActiveApplicant">
+	Select
+	 *
+	From Activeapplicant Ap 
+	Where 
+	Aa_Refund_State = 100
+	And Ap.Aa_Refund_Flag = 1 
+	And Ap.Aa_Refund_State In (100,120,130)
+	and Ap.asu_id = #{asu_id}
+ </select>
+ 
+	
+</mapper>

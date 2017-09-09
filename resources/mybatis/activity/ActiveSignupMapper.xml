@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="activeSignupMapper">
+	<sql id="Base_Column_List">
+    asu_id,asu_user_emergency ,asu_user_emergency_phone ,asu_link_user_phone ,asu_order_area ,asu_active_id ,asu_user_account_num ,asu_trade_no ,asu_pay_time ,asu_account_paid ,asu_account_payable ,asu_reserve_price ,asu_pay_state ,asu_price_type ,asu_create_time ,asu_user_id ,asu_last_update_time ,asu_last_update_user ,asu_is_delete ,asu_is_comment ,asu_user_relation ,asu_equipment ,asu_state ,asu_type ,asu_leader_is_delete 
+    </sql>
+
+    <resultMap type="com.op.dto.activity.ActiveSignupDTO" id="ActiveSignupReturnMap">
+      <id column="asu_id" property="asu_id"/>
+      <result column="asu_order_id" property="asu_order_id"/>
+      <result column="asu_user_name" property="asu_user_name"/>
+      <result column="asu_user_sex" property="asu_user_sex"/>
+      <result column="asu_user_phone" property="asu_user_phone"/>
+      <result column="asu_user_certificates_type" property="asu_user_certificates_type"/>
+      <result column="asu_user_certificates_num" property="asu_user_certificates_num"/>
+      <result column="asu_user_emergency" property="asu_user_emergency"/>
+      <result column="asu_user_emergency_phone" property="asu_user_emergency_phone"/>
+      <result column="asu_link_user_phone" property="asu_link_user_phone"/>
+      <result column="asu_order_area" property="asu_order_area"/>
+      <result column="asu_active_id" property="asu_active_id"/>
+      <result column="asu_state" property="asu_state"/>
+      <result column="asu_user_account_num" property="asu_user_account_num"/>
+      <result column="asu_trade_no" property="asu_trade_no"/>
+      <result column="asu_account_paid" property="asu_account_paid"/>
+      <result column="asu_pay_state" property="asu_pay_state"/>
+      <result column="asu_price_type" property="asu_price_type"/>
+      <result column="asu_refund_flag" property="asu_refund_flag"/>
+      <result column="asu_refund_state" property="asu_refund_state"/>
+      <result column="asu_refund_price" property="asu_refund_price"/>
+      <result column="asu_refund_time" property="asu_refund_time"/>
+      <result column="asu_create_time" property="asu_create_time"/>
+      <result column="asu_user_id" property="asu_user_id"/>
+      <result column="asu_last_update_time" property="asu_last_update_time"/>
+      <result column="asu_last_update_user" property="asu_last_update_user"/>
+      <result column="asu_is_delete" property="asu_is_delete"/>
+      <result column="title" property="title"/>
+      <result column="userName" property="userName"/>
+      
+      <!--活动报名人列表 -->
+      <collection property="applicantList" ofType="activeApplicantMapper.findApplicantByAsuId" column="asu_id" select="activeApplicantMapper.findApplicantByAsuId" ></collection>
+   </resultMap>
+   
+  
+	<!-- 查询退款的活动订单 -->
+	 <select id="getActiveRefundListPage" parameterType="page" resultType="com.op.dto.order.ActivityRefundOrdersDTO">
+		 Select
+		     asu.asu_id,asu_order_area,asu_active_id,asu_user_account_num,asu_trade_no,asu_pay_time
+			 ,asu_account_paid,sum(aa_refund_price) aa_refund_price,asu_reserve_price,asu_create_time,asu_user_id
+			 ,asu_state,aa_refund_flag,aa_refund_state
+			 ,aa_refund_time,aa_refund_user,aa_refund_area,aa_leader_refund_area,refund_batch_number,aa_refund_date,aa_signup_linkman
+			 ,title,UNAME userName,asu_link_user_phone
+			From Activesignup Asu
+			Left Join Activity Ac On Asu.Asu_Active_Id = Ac.Id
+			Left Join Activeapplicant Ap On Ap.Asu_Id = Asu.Asu_Id
+			left join users u on u.u_id = asu.asu_user_id
+			Where 
+			Asu_Is_Delete=0 
+			And Asu_Type=1 
+			And Asu.Asu_Pay_State = 2 
+			And Asu_State != 40
+			And Aa_Refund_State = 100
+			And Ap.Aa_Refund_Flag = 1 And Ap.Aa_Refund_State In (100,120,130)
+			
+		 group by asu.asu_id ,asu_order_area,asu_active_id,asu_user_account_num,asu_trade_no,asu_pay_time
+		 ,asu_account_paid, aa_refund_price,asu_reserve_price,asu_create_time,asu_user_id
+		 ,asu_state,aa_refund_flag,aa_refund_state
+		 ,aa_refund_time,aa_refund_user,aa_refund_area,aa_leader_refund_area,refund_batch_number,aa_refund_date,aa_signup_linkman
+		 ,title,UNAME ,asu_link_user_phone
+		order by aa_refund_time desc
+				
+		 
+	 </select>
+
+
+	<!-- 根据订单ID查询退款的活动订单 -->
+	 <select id="getActiveRefundByOrderId" parameterType="java.lang.String" resultMap="ActiveSignupReturnMap">
+		 Select 
+		 asu.asu_id ,asu_order_area,asu_active_id,asu_user_account_num,asu_trade_no,asu_pay_time
+		 ,asu_account_paid,asu_reserve_price,asu_create_time,asu_user_id
+		 ,asu_state,title,UNAME userName,asu_link_user_phone
+		From Activesignup Asu
+		Left Join Activity Ac On Asu.Asu_Active_Id = Ac.Id
+		left join users u on u.u_id = asu.asu_user_id
+		Where 
+		Asu_Is_Delete=0 
+		And Asu_Type=1 
+		And Asu.Asu_Pay_State = 2 
+		And Asu_State != 40
+		and asu.asu_id =  #{order_id}
+	 </select>
+
+	<!-- 通过id获取退款订单 -->
+	<select id="getActiveRefundById" parameterType="java.lang.String" resultType="com.op.entity.activity.ActiveSignup">
+		select 
+		  asu_id,asu_order_id,asu_order_area,asu_user_account_num,asu_trade_no,asu_refund_price
+		from 
+			activeSignup
+		where 
+		asu_order_id  in 
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+        	  #{array[${index}]}  
+        </foreach>
+        and   ASU_PAY_STATE = 2
+		AND ASU_REFUND_FLAG  =1
+		AND ASU_IS_DELETE    =0
+	  	AND ASU_PRICE_TYPE in (10,20) 
+		AND asu_refund_state in (100,105)
+	</select>
+
+	<!-- 通过id查看退款订单中是否有相同支付交易号的订单 -->
+	<select id="jcxtjyh" parameterType="java.lang.String" resultType="java.util.HashMap">
+		select 
+			ASU_TRADE_NO,count(asu_trade_no) COUNTS
+		from 
+			activeSignup
+		where 
+		asu_order_id  in 
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+        	  #{array[${index}]}  
+        </foreach>
+        and   ASU_PAY_STATE = 2
+		AND ASU_REFUND_FLAG  =1
+		AND ASU_IS_DELETE    =0
+	  	AND ASU_PRICE_TYPE in (10,20) 
+		AND asu_refund_state in (100,105)
+		group by asu_trade_no
+	    order by counts desc 
+	</select>	
+	 
+	<!-- 修改退款状态 -->
+	<update id="updateRefundState" parameterType="java.util.HashMap">
+			update  ActiveSignup
+			set 
+			<if test="state == 1">
+				asu_refund_state = 105
+				, REFUND_BATCH_NUMBER = #{batch_no}
+				, ASU_REFUND_USER = #{ol_create_user_name}
+				,asu_refund_date = now()
+			</if>
+			<if test="state == 2">
+				asu_refund_state = 130
+			</if>
+			<if test="state == 3">
+				asu_refund_state = 130
+			</if>
+			<if test="state == 4">
+				asu_refund_state = 110
+			</if>
+			where 
+       		asu_order_id in 
+        <foreach item="item" index="index" collection="asu_order_id" open="(" separator="," close=")">
+        	  #{asu_order_id[${index}]}  
+        </foreach>
+           <!-- <if test="state == 1">
+			  and	asu_refund_state != 105
+			</if> -->
+	</update>	
+
+
+	 
+	<!-- 修改退款状态 支付宝返回的退款结果-->
+	<update id="updateReturnRefundState" parameterType="java.util.HashMap">
+			update  ActiveSignup
+			set 
+			<if test="state == 2">
+				asu_refund_state = 130
+			</if>
+			<if test="state == 3">
+				asu_refund_state = 130
+			</if>
+			<if test="state == 4">
+				asu_refund_state = 110
+			</if>
+			where 
+       		REFUND_BATCH_NUMBER = #{batch_no}  and asu_trade_no = #{asu_trade_no}
+	</update>	
+
+	 
+	<!-- 修改退款状态 支付宝返回的退款结果-->
+	<update id="updateReturnRefundStateByList" parameterType="java.util.List">
+       <foreach collection="list" item="item" index="index" open="begin" close=";end;" separator=";">
+		    update  ActiveSignup
+			set 
+			<if test="item.state == 2">
+				asu_refund_state = 130
+			</if>
+			<if test="item.state == 3">
+				asu_refund_state = 130
+			</if>
+			<if test="item.state == 4">
+				asu_refund_state = 110
+			</if>
+			where 
+       		asu_trade_no = #{item.asu_trade_no} and REFUND_BATCH_NUMBER = #{item.batch_no} 
+	   </foreach>		
+       		
+	</update>
+
+
+	<!--  根据批次号查询退款成功状态未更新的订单 -->
+	<select id="getActiveRefundByBatchNumber" parameterType="java.lang.String" resultType="com.op.entity.activity.ActiveSignup">
+		select 
+		  asu_id,asu_order_area,asu_user_account_num,asu_trade_no,asu_refund_price,refund_batch_number
+		from 
+			activeSignup
+		where 
+		refund_batch_number = #{refund_batch_number}
+        and   ASU_PAY_STATE = 2
+		AND ASU_REFUND_FLAG  =1
+		AND ASU_IS_DELETE    =0
+	  	AND ASU_PRICE_TYPE in (10,20) 
+		AND asu_refund_state = 105
+	</select>
+
+
+	<!-- *********************************************************************** -->
+	
+	<!-- 获取系统所有活动订单 -->
+	<select id="getAllOrderListPage" parameterType="Page" resultType="com.op.dto.activity.ActiveSignupDTO">
+		Select
+			<include refid="Base_Column_List"></include>
+			,title,UNAME userName
+		From activeSignup
+		Left Join Activity Ac On Asu_Active_Id = Ac.Id
+		left join users u on u.u_id = asu_user_id
+	</select>
+ 
+</mapper>

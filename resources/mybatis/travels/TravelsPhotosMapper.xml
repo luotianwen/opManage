@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- 游记图片(travelsPhotos)Mapper -->
+<mapper namespace="travelsPhotosMapper">
+    <!--mybatis ehcache缓存配置 -->
+    <!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+    <!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+    <!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>  -->
+
+	<sql id="Base_Column_List">
+    id,content_id ,src ,tag ,tag_id ,tag_type 
+    </sql>
+
+    <resultMap type="com.op.entity.travels.TravelsPhotos" id="TravelsPhotosReturnMap">
+		<!-- id -->
+      <id column="id" property="id"/>
+		<!-- 游记内容ID -->
+      <result column="content_id" property="content_id"/>
+		<!-- 图片src -->
+      <result column="src" property="src"/>
+		<!-- 图片标签 -->
+      <result column="tag" property="tag"/>
+		<!-- 地点、酒店、景点 ID -->
+      <result column="tag_id" property="tag_id"/>
+		<!-- 关联id类型（1：地点；2：酒店；3：景点） -->
+      <result column="tag_type" property="tag_type"/>
+   </resultMap>
+   
+  
+	
+</mapper>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="productclassificationMapper">
+	 
+
+	<select id="getProductclassificationListPage" parameterType="page" resultType="com.op.splot.entity.Productclassification">
+		  SELECT
+		<![CDATA[
+        id ,name ,status ,cdate ,notes 
+	    ]]>
+		  FROM s_productclassification 
+		WHERE 1=1
+	</select>
+	 
+	<select id="getProductclassificationById" parameterType="com.op.splot.entity.Productclassification" resultType="com.op.splot.entity.Productclassification">
+		SELECT
+		 <![CDATA[
+        id ,name ,status ,cdate ,notes 
+	    
+	        FROM s_productclassification 
+	        WHERE 
+
+		        id = #{id } 
+	    ]]>
+	</select>
+	<insert id="saveProductclassification" parameterType="com.op.splot.entity.Productclassification">
+		 <![CDATA[
+        INSERT INTO s_productclassification (
+        	id ,
+        	name ,
+        	status ,
+        	cdate ,
+        	notes 
+        ) VALUES (
+        	#{id} ,
+        	#{name} ,
+        	#{status} ,
+        	#{cdate} ,
+        	#{notes} 
+        )
+    ]]>
+		<selectKey keyProperty="id" resultType="int">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+	</insert>
+	<update id="updateProductclassification" parameterType="com.op.splot.entity.Productclassification">
+		<![CDATA[
+        UPDATE s_productclassification SET
+	        name = #{name} ,
+	        status = #{status} ,
+	        cdate = #{cdate} ,
+	        notes = #{notes} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+	 
+</mapper>

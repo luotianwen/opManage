@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 照片表(app_photo)Mapper -->
+<mapper namespace="app_photoMapper">
+	<!--mybatis ehcache缓存配置 -->
+	<!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+	<!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+
+	<sql id="Base_Column_List">
+		p_id,pd_Id ,p_url ,p_delete
+	</sql>
+
+	<resultMap type="com.app.entity.photo.App_photo" id="App_photoReturnMap">
+		<!-- ID -->
+		<id column="p_id" property="p_id" />
+		<!-- 描述ID -->
+		<result column="pd_Id" property="pd_Id" />
+		<!-- 图片路径 -->
+		<result column="p_url" property="p_url" />
+		<!-- 删除(0：正常；1：回收站；2：删除) -->
+		<result column="p_delete" property="p_delete" />
+	</resultMap>
+
+	<!-- 根据描述ID查询照片 -->
+	<select id="findPhotoByDescId" parameterType="String" resultMap="App_photoReturnMap">
+		select p_id,pd_Id ,p_url ,p_delete from app_photo
+		where pd_id = #{pd_id} and p_delete=0
+	</select>
+
+</mapper>

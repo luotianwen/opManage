@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- 游记(travels)Mapper -->
+<mapper namespace="travelsMapper">
+    <!--mybatis ehcache缓存配置 -->
+    <!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+    <!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+    <!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>  -->
+
+	<sql id="Base_Column_List">
+		id,user_id ,main_image ,show_image ,main_video ,title ,cover_image_id ,
+		music ,music_name ,digest ,departure_time ,travel_days ,travel_person ,
+		per_capita_cost ,address ,like_count ,collection_count ,share_count ,read_count ,
+		reply_count ,issued_time ,create_time ,update_time ,issued_state ,auditor_id ,
+		auditor_time ,isdelete ,address_id 
+	</sql>
+
+	<resultMap type="com.op.entity.travels.Travels" id="TravelsReturnMap">
+		<!-- id -->
+		<id column="id" property="id" />
+		<!-- 发布者ID -->
+		<result column="user_id" property="user_id" />
+		<!-- 游记主图 -->
+		<result column="main_image" property="main_image" />
+		<!-- 游记主图 （截取部分） -->
+		<result column="show_image" property="show_image" />
+		<!-- 游记主图视频 -->
+		<result column="main_video" property="main_video" />
+		<!-- 游记标题 -->
+		<result column="title" property="title" />
+		<!-- 封面图片id -->
+		<result column="cover_image_id" property="cover_image_id" />
+		<!-- 背景音乐 -->
+		<result column="music" property="music" />
+		<!-- 出发时间 -->
+		<result column="departure_time" property="departure_time" />
+		<!-- 出行天数 -->
+		<result column="travel_days" property="travel_days" />
+		<!-- 人物 -->
+		<result column="travel_person" property="travel_person" />
+		<!-- 人均费用 -->
+		<result column="per_capita_cost" property="per_capita_cost" />
+		<!-- 关联目的地 -->
+		<result column="address" property="address" />
+		<!-- 关联目的地ID -->
+		<result column="address_id" property="address_id" />
+		<!-- 点赞次数（顶） -->
+		<result column="like_count" property="like_count" />
+		<!-- 收藏次数 -->
+		<result column="collection_count" property="collection_count" />
+		<!-- 分享次数 -->
+		<result column="share_count" property="share_count" />
+		<!-- 阅读次数 -->
+		<result column="read_count" property="read_count" />
+		<!-- 回复次数 -->
+		<result column="reply_count" property="reply_count" />
+		<!-- 发布时间 -->
+		<result column="issued_time" property="issued_time" />
+		<!-- 创建时间 -->
+		<result column="create_time" property="create_time" />
+		<!-- 修改时间 -->
+		<result column="update_time" property="update_time" />
+		<!-- 发布状态（1：草稿；2：发布审核；3：发布成功；4：审核失败，5：再次审核） -->
+		<result column="issued_state" property="issued_state" />
+		<!-- 审核人ID -->
+		<result column="auditor_id" property="auditor_id" />
+		<!-- 审核时间 -->
+		<result column="auditor_time" property="auditor_time" />
+		<!-- 是否删除 -->
+		<result column="isdelete" property="isdelete" />
+		<!-- 音乐文件名 -->
+		<result column="music_name" property="music_name" />
+		<!-- 游记精简内容 -->
+		<result column="digest" property="digest" />
+
+		<!-- 游记所有内容 -->
+		<collection property="travelsContentList" ofType="com.op.entity.travels.TravelsContent"
+			column="id" select="travelsContentMapper.findTraelsContentByTravelsId"></collection>
+
+		<!-- 我是游记的标签集合 -->
+		<collection property="tags" ofType="com.op.entity.travels.TravelsTag" column="{tt_travels_id=id,tt_create_user=user_id}" select="travelsTagMapper.selectTagsByTravelsId"></collection>
+
+	</resultMap>
+   
+	<!-- 查询所有游记 -->
+	<select id="getTravelsAllPage" parameterType="page" resultType="com.op.dto.travels.TravelsDTO">
+		select id,u.uName,title,address,departure_time,travel_days,
+		travel_person,per_capita_cost,auditNotes,issued_state,
+		au.uName as auditor_id,auditor_time
+		from travels 
+		left join users u on u.u_id = user_id
+		left join users au on au.u_id = auditor_id
+		where 1=1 and isdelete = 0
+		<if test="t.type=='examine'">
+			and (ISSUED_STATE='2' or ISSUED_STATE='5')
+		</if>
+		<if test="t.type=='manage'">
+			and ISSUED_STATE!='1'
+		</if>
+		<if test="t.travelsSearchDTO.title!=null and t.travelsSearchDTO.title!=''">
+			and title = #{t.travelsSearchDTO.title}
+		</if>
+		<if test="t.travelsSearchDTO.id!=null and t.travelsSearchDTO.id!=''">
+			and id = #{t.travelsSearchDTO.id}
+		</if>
+		<if test="t.travelsSearchDTO.userName!=null and t.travelsSearchDTO.userName!=''">
+			and u.uname = #{t.travelsSearchDTO.userName}
+		</if>
+		
+	</select>
+
+	<!-- 审核游记 -->
+	<update id="examineTravels" parameterType="java.util.Map">
+		update travels set 
+		issued_state = #{issued_state} , auditor_id = #{auditor_id}
+		, auditor_time = #{auditor_time} , auditNotes = #{auditNotes}
+		where id = #{id}
+		
+	</update>
+
+	<!-- 根据ID查询游记 -->
+	<select id="findTravelsById" parameterType="java.util.Map" resultMap="TravelsReturnMap">
+		select
+		<include refid="Base_Column_List" />
+		from travels
+		where id = #{id} and user_id = #{user_id}
+	</select>
+
+	<!-- 展示游记 -->
+	<select id="findTravelsByIdForAll" parameterType="java.util.Map"
+		resultMap="TravelsReturnMap">
+		select
+		<include refid="Base_Column_List" />
+		from travels
+		where id = #{id}
+	</select>
+
+	<!-- 删除游记 -->
+	<delete id="deleteTravels" parameterType="com.op.entity.travels.Travels">
+		delete from travels
+		where id
+		= #{id} and user_id = #{user_id}
+	</delete>
+
+	<!-- 删除发布成功游记 -->
+	<update id="deleteTravelsByRelease" parameterType="com.op.entity.travels.Travels">
+		update travels
+		set
+		isdelete = 1
+		where id = #{id} and user_id = #{user_id}
+	</update>
+	
+</mapper>

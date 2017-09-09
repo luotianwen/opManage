@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- 地点商户认领认证信息(pointAuth)Mapper -->
+<mapper namespace="pointAuthMapper">
+    <!--mybatis ehcache缓存配置 -->
+    <!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+    <!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+    <!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>  -->
+
+	<sql id="Base_Column_List">
+    	pa_id,user_id ,ps_id ,contactName ,idCard ,mobile ,email ,idCard_p_src ,
+	    idCard_i_src2 ,auditor_state ,organizationCode ,companyName ,location ,
+	    detailedAddress ,establish_time ,business_end_time ,business_start_time ,
+	    registerCapital ,businessScope ,auditor_remark ,organizationCode_src ,
+	    taxpayer_identity_number ,tax_registration_certificate ,
+	    tax_registration_certificate_s ,license_number ,license_src ,
+	    application_time ,auditor_id ,auditor_time
+    </sql>
+
+    <resultMap type="com.op.entity.pointService.PointAuth" id="PointAuthReturnMap">
+		<!-- 认证id -->
+		<id column="pa_id" property="pa_id" />
+		<!-- 用户id -->
+		<result column="user_id" property="user_id" />
+		<!-- 地点服务id -->
+		<result column="ps_id" property="ps_id" />
+		<!-- 真实姓名 -->
+		<result column="contactName" property="contactName" />
+		<!-- 身份证号 -->
+		<result column="idCard" property="idCard" />
+		<!-- 手机号 -->
+		<result column="mobile" property="mobile" />
+		<!-- 邮箱 -->
+		<result column="email" property="email" />
+		<!-- 身份证扫描(正面)图片地址 -->
+		<result column="idCard_p_src" property="idCard_p_src" />
+		<!-- 身份证扫描(反面)图片地址 -->
+		<result column="idCard_i_src2" property="idCard_i_src2" />
+		<!-- 审核结果（1：提交待审核；2：审核中；3：审核成功；4：审核失败；） -->
+		<result column="auditor_state" property="auditor_state" />
+		<!-- 组织机构代码 -->
+		<result column="organizationCode" property="organizationCode" />
+		<!-- 公司名称 -->
+		<result column="companyName" property="companyName" />
+		<!-- 注册所在地 -->
+		<result column="location" property="location" />
+		<!-- 详细地址 -->
+		<result column="detailedAddress" property="detailedAddress" />
+		<!-- 成立日期 -->
+		<result column="establish_time" property="establish_time" />
+		<!-- 营业结束时间 -->
+		<result column="business_end_time" property="business_end_time" />
+		<!-- 营业开始时间 -->
+		<result column="business_start_time" property="business_start_time" />
+		<!-- 注册资本 -->
+		<result column="registerCapital" property="registerCapital" />
+		<!-- 经营范围 -->
+		<result column="businessScope" property="businessScope" />
+		<!-- 审核备注 -->
+		<result column="auditor_remark" property="auditor_remark" />
+		<!-- 组织机构代码证图片地址 -->
+		<result column="organizationCode_src" property="organizationCode_src" />
+		<!-- 纳税人识别号 -->
+		<result column="taxpayer_identity_number" property="taxpayer_identity_number" />
+		<!-- 税务登记证 -->
+		<result column="tax_registration_certificate" property="tax_registration_certificate" />
+		<!-- 一般纳税人资格证图片地址 -->
+		<result column="tax_registration_certificate_s" property="tax_registration_certificate_s" />
+		<!-- 营业执照注册号 -->
+		<result column="license_number" property="license_number" />
+		<!-- 营业执照扫描件图片地址 -->
+		<result column="license_src" property="license_src" />
+		<!-- 申请认证时间 -->
+		<result column="application_time" property="application_time" />
+		<!-- 审核人 -->
+		<result column="auditor_id" property="auditor_id" />
+		<!-- 审核时间 -->
+		<result column="auditor_time" property="auditor_time" />
+   </resultMap>
+   
+   
+   <select id="getListPage" parameterType="Page" resultType="com.op.dto.pointService.PointAuthDTO">
+   	select 
+   		    pa_id,user_id,u1.uName user_name,ps.ps_id,ps.ps_zh_name ,contactName ,idCard ,mobile ,email ,idCard_p_src ,idCard_i_src2 ,
+   		    license_number ,license_src ,application_time ,auditor_id,u2.uName auditor_name ,auditor_time ,auditor_remark ,auditor_state
+   	from
+   		PointAuth pa
+   	left join
+   		PointService ps on ps.ps_id = pa.ps_id
+   	left join
+   		users u1 on u1.u_id = user_id
+   	left join
+   		users u2 on u2.u_id = auditor_id
+    where 1=1
+    <if test="t.ps_zh_name != null and t.ps_zh_name != '' ">
+   		and ps.ps_zh_name LIKE CONCAT(CONCAT('%', #{t.ps_zh_name}),'%')
+    </if>
+    <if test="t.auditor_state != null and t.auditor_state != '' ">
+   		and auditor_state =  #{t.auditor_state}
+    </if>
+    <if test="t.idCard != null and t.idCard != '' ">
+   		and idCard LIKE CONCAT(CONCAT('%', #{t.idCard}),'%')
+    </if>
+   
+   </select>
+  
+  
+     
+   <select id="findById" parameterType="String" resultType="com.op.dto.pointService.PointAuthDTO">
+   	select 
+   		    pa_id,user_id,u1.uName user_name,ps.ps_id,ps.ps_zh_name ,contactName ,idCard ,mobile ,email ,idCard_p_src ,idCard_i_src2 ,
+   		    license_number ,license_src ,application_time ,auditor_id,u2.uName auditor_name ,auditor_time ,auditor_remark ,auditor_state ,
+   		    organizationCode,organizationCode_src,taxpayer_identity_number,tax_registration_certificate
+   	from
+   		PointAuth pa
+   	left join
+   		PointService ps on ps.ps_id = pa.ps_id
+   	left join
+   		users u1 on u1.u_id = user_id
+   	left join
+   		users u2 on u2.u_id = auditor_id
+    where 
+		pa_id = #{pa_id}
+   
+   </select>
+   
+   <select id="findByPsId" parameterType="java.util.Map" resultType="com.op.dto.pointService.PointAuthDTO">
+	select 
+		pa_id,user_id,contactName ,idCard ,mobile ,email ,idCard_p_src ,idCard_i_src2 ,
+		license_number ,license_src ,application_time ,
+		organizationCode,organizationCode_src,taxpayer_identity_number,tax_registration_certificate,
+		threeinone
+	from
+		PointAuth pa
+	<if test="ps_state==30">
+		left join PointServiceDeputy ps on ps.ps_point_service_id = pa.ps_id
+	</if>
+	<if test="ps_state!=30">
+		left join PointServiceDeputy ps on ps.ps_id = pa.ps_id
+	</if>
+	
+   where ps.ps_id = #{ps_id}
+   </select>
+   
+   
+	<!--  更新审核认证信息 -->
+	<update id="updateExamine" parameterType="com.op.dto.pointService.PointAuthDTO">
+   		update 
+   			PointAuth
+   		set
+   		    auditor_remark = #{auditor_remark},auditor_id = #{auditor_id},auditor_time = now(),auditor_state = #{auditor_state}
+   		where
+   			pa_id = #{pa_id}
+	</update>
+	
+	<!-- 更改认证信息 -->
+	<update id="updatePointAuth" parameterType="java.util.Map">
+		update 
+			PointAuth
+		set
+			auditor_remark = #{ps_error_comment},
+			auditor_id = #{ps_check_user_id},
+			auditor_time = now(),
+			ps_id = #{update_id}
+			<if test="ps_state==30">
+				,auditor_state = 3
+			</if>
+			<if test="ps_state==40">
+				,auditor_state = 4
+			</if>
+		where
+			pa_id = #{pa_id}  
+	</update>
+	
+</mapper>

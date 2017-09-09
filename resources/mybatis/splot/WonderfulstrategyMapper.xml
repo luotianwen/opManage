@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="wonderfulstrategyMapper">
+	 
+
+	<select id="getWonderfulstrategyListPage" parameterType="page" resultType="com.op.splot.entity.Wonderfulstrategy">
+		SELECT
+		t.id , s.id as sid ,t.content ,t.isfirst ,s.name as sname ,t.name,
+		t.pho,
+		t.creator,
+		t.cdate
+		FROM
+		s_spot s
+		left join
+		s_wonderfulstrategy t
+		on t.sid=s.id
+		WHERE 1=1
+		<if test="t!= null and t!= '' ">
+			AND s.name LIKE CONCAT(CONCAT('%', #{t}),'%')
+		</if>
+		order by s.cdate desc,s.id desc
+
+	</select>
+	 
+	<select id="getWonderfulstrategyById" parameterType="String" resultType="com.op.splot.entity.Wonderfulstrategy">
+		SELECT
+
+        id ,sid ,content ,isfirst ,name ,pho,
+        	 creator,
+        	 cdate
+	    
+	        FROM s_wonderfulstrategy 
+	        WHERE 
+
+		        id = #{id } 
+
+	</select>
+	<insert id="saveWonderfulstrategy" parameterType="com.op.splot.entity.Wonderfulstrategy">
+		 <![CDATA[
+        INSERT INTO s_wonderfulstrategy (
+        	id ,
+        	sid ,
+        	content ,
+        	isfirst,
+        	 name,
+        	 pho,
+        	 creator,
+        	 cdate
+        ) VALUES (
+        	#{id} ,
+        	#{sid} ,
+        	#{content} ,
+        	#{isfirst}  ,
+        	#{name} ,
+        	#{pho}  ,
+        	#{creator}  ,
+        	now()
+        )
+    ]]>
+		<selectKey keyProperty="id" resultType="int">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+	</insert>
+	<update id="updateWonderfulstrategy" parameterType="com.op.splot.entity.Wonderfulstrategy">
+		<![CDATA[
+        UPDATE s_wonderfulstrategy SET
+	        sid = #{sid} ,
+	        content = #{content} ,
+	          name = #{name} ,
+	        isfirst = #{isfirst} ,
+	         pho= #{pho},
+        	 creator= #{creator},
+        	 cdate= now()
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+	 <delete id="deleteWonderfulstrategy" parameterType="String">
+		 delete   from s_wonderfulstrategy WHERE
+	        id = #{id}
+	 </delete>
+</mapper>

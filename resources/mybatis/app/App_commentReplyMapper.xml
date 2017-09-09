@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 照片评论(app_commentReply)Mapper -->
+<mapper namespace="app_commentReplyMapper">
+	<!--mybatis ehcache缓存配置 -->
+	<!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+	<!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+
+	<sql id="Base_Column_List">
+		cr_id,pd_id ,cr_cuser ,cr_byreply ,cr_cdate ,cr_content ,cr_status ,cr_parent ,cr_delete
+	</sql>
+
+	<resultMap type="com.app.entity.photo.App_commentReply" id="App_commentReplyReturnMap">
+		<!-- id -->
+		<id column="cr_id" property="cr_id" />
+		<!-- 描述ID -->
+		<result column="pd_id" property="pd_id" />
+		<!-- 回复人 -->
+		<result column="cr_cuser" property="cr_cuser" />
+		<!-- 被回复人 -->
+		<result column="cr_byreply" property="cr_byreply" />
+		<!-- 评论时间 -->
+		<result column="cr_cdate" property="cr_cdate" />
+		<!-- 评论内容 -->
+		<result column="cr_content" property="cr_content" />
+		<!-- 评论状态 -->
+		<result column="cr_status" property="cr_status" />
+		<!-- 父ID -->
+		<result column="cr_parent" property="cr_parent" />
+		<!-- 删除（0：正常；1：删除） -->
+		<result column="cr_delete" property="cr_delete" />
+	</resultMap>
+
+	<!-- 根据描述ID查询回复 -->
+	<select id="findReplyCommentPage" parameterType="Page" resultType="com.app.dto.photo.App_commentReplyDTO">
+		select
+			cr_id,pd_id ,cr_cuser ,cr_byreply ,cr_cdate ,cr_content ,cr_status ,cr_parent ,cr_delete,
+			cuser.uName rName,cuser.uHeadImg rHeadImg,reply.uName brName,reply.uHeadImg brHeadImg
+		from app_commentReply
+		left join users cuser on cuser.u_id = cr_cuser
+		left join users reply on reply.u_id = cr_byreply
+		
+		where pd_id = #{t} and cr_delete = 0
+		order by cr_cdate asc
+	</select>
+	
+	<!-- 根据评论ID查询 -->
+	<select id="findCommentReplyById" parameterType="String" resultType="com.app.dto.photo.App_commentReplyDTO">
+		select
+			cr_id,pd_id ,cr_cuser ,cr_byreply ,cr_cdate ,cr_content ,cr_status ,cr_parent ,cr_delete,
+			cuser.uName rName,cuser.uHeadImg rHeadImg,reply.uName brName,reply.uHeadImg brHeadImg
+		from app_commentReply
+		left join users cuser on cuser.u_id = cr_cuser
+		left join users reply on reply.u_id = cr_byreply
+		
+		where cr_id = #{id}
+	</select>
+	
+	<update id="deleteReply" parameterType="String">
+		update app_commentReply set
+		cr_delete = 1
+		where cr_id = #{id}
+	</update>
+	
+</mapper>

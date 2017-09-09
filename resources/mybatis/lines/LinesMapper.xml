@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="linesMapper">
+	<sql id="Base_Column_List">
+    l_id,l_active_description ,l_active_iamge_description ,coordinates ,l_name ,l_description 
+    ,l_feature ,l_image_description ,l_al_id ,l_create_time ,l_create_user ,l_update_time ,l_update_user 
+    ,l_start_location ,l_last_location ,l_vehicle ,l_diet ,l_accommodation 
+    </sql>
+	
+	<!-- 根据ID查看该线路坐标  -->
+	<select id="selectLineById" parameterType="java.lang.String" resultType="com.op.entity.lines.SubsectionLines" >
+		select l_start_location ,l_last_location ,coordinates
+		from subsectionLines
+		where l_id=#{id}
+	</select>
+
+    <resultMap type="com.op.entity.lines.SubsectionLines" id="LinesReturnMap">
+      <id column="l_id" property="l_id"/>
+      
+      <!-- 该线路对应的图片/线路图片 -->
+      <collection property="lineImages" ofType="com.op.entity.lines.LineImages" column="l_id" select="lineImagesMapper.findImagesListByActiveLineId" ></collection>
+   </resultMap>
+   
+   <!-- 根据总体线路查询线路集合 -->
+   <select id="selectListBylAlId" parameterType="String" resultMap="LinesReturnMap" >
+   	select <include refid="Base_Column_List"/>
+   	from subsectionLines where l_al_id=#{id}
+   </select>
+   
+	<!-- 查询所有活动线路 -->
+	<select id="selectList" resultType="com.op.entity.lines.SubsectionLines">
+		select 
+		<include refid="Base_Column_List" />
+		from subsectionLines
+	</select>
+	
+	<!-- 添加活动线路 -->
+	<insert id="insertLines" parameterType="com.op.entity.lines.SubsectionLines">
+		insert into subsectionLines(
+		l_name,coordinates
+		) values(#{l_name},#{coordinates})
+	</insert>
+	
+	<!-- 添加活动线路 -->
+	<!-- <insert id="insertintoLines" parameterType="java.util.List" useGeneratedKeys="false">
+		insert into subsectionLines(l_id,l_active_description,l_active_iamge_description,coordinates,l_name,l_description,l_feature
+			,l_image_description,l_al_id,l_create_time,l_create_user)
+	   <foreach collection="list" item="item" index="index" separator="UNION ALL" >
+		   SELECT
+		   #{item.l_id},#{item.l_active_description},#{item.l_active_iamge_description},#{item.coordinates},#{item.l_name},#{item.l_description},#{item.l_feature
+			},#{item.l_image_description},#{item.l_al_id},#{item.l_create_time},#{item.l_create_user}
+		   FROM DUAL
+	   </foreach>
+	</insert> -->
+	<insert id="insertintoLines" parameterType="com.op.entity.lines.SubsectionLines" >
+		insert into subsectionLines(l_active_description,l_active_iamge_description,coordinates,l_name,l_description,l_feature
+			,l_image_description,l_al_id,l_create_time,l_create_user,l_start_location,l_last_location,l_vehicle ,l_diet ,l_accommodation )
+			values(
+		   #{l_active_description},#{l_active_iamge_description},#{coordinates},#{l_name},#{l_description},#{l_feature }
+		   ,#{l_image_description},#{l_al_id},#{l_create_time},#{l_create_user},#{l_start_location},#{l_last_location}
+		   ,#{l_vehicle} ,#{l_diet },#{l_accommodation} 
+			)
+	</insert>
+</mapper>

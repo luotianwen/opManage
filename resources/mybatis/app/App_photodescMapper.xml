@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 图片描述(pd_photodesc)Mapper -->
+<mapper namespace="app_photodescMapper">
+	<!--mybatis ehcache缓存配置 -->
+	<!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+	<!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+
+	<sql id="Base_Column_List">
+		pd_id,pd_content ,pd_coordinate ,pd_address ,pd_proince ,pd_city ,pd_district ,pd_cdate ,pd_udate ,pd_cuser ,pd_status
+		,pd_delete ,pd_photo_count ,pd_like_count ,pd_comment_count ,pd_collect_count
+		,pd_audituser ,pd_audittime ,pd_auditremark
+	</sql>
+
+	<resultMap type="com.app.entity.photo.App_photodesc" id="App_photodescReturnMap">
+		<!-- ID -->
+		<id column="pd_id" property="pd_id" />
+		<!-- 描述内容 -->
+		<result column="pd_content" property="pd_content" />
+		<!-- 坐标 -->
+		<result column="pd_coordinate" property="pd_coordinate" />
+		<!-- 拍摄地址 -->
+		<result column="pd_address" property="pd_address" />
+		<!-- 省 -->
+		<result column="pd_proince" property="pd_proince" />
+		<!-- 市 -->
+		<result column="pd_city" property="pd_city" />
+		<!-- 区 -->
+		<result column="pd_district" property="pd_district" />
+		<!-- 创建时间 -->
+		<result column="pd_cdate" property="pd_cdate" />
+		<!-- 修改时间 -->
+		<result column="pd_udate" property="pd_udate" />
+		<!-- 创建用户 -->
+		<result column="pd_cuser" property="pd_cuser" />
+		<!-- 状态(0：待审核；1：审核中；2：审核通过；3：审核失败) -->
+		<result column="pd_status" property="pd_status" />
+		<!-- 删除(0：正常；1：回收站；2：删除) -->
+		<result column="pd_delete" property="pd_delete" />
+		<!-- 照片数量 -->
+		<result column="pd_photo_count" property="pd_photo_count"/>
+		<!-- 点赞次数 -->
+		<result column="pd_like_count" property="pd_like_count" />
+		<!-- 评论次数 -->
+		<result column="pd_comment_count" property="pd_comment_count" />
+		<!-- 收藏人数 -->
+		<result column="pd_collect_count" property="pd_collect_count" />
+		<!-- 审核人 -->
+		<result column="pd_audituser" property="pd_audituser" />
+		<!-- 审核时间 -->
+		<result column="pd_audittime" property="pd_audittime" />
+		<!-- 审核备注 -->
+		<result column="pd_auditremark" property="pd_auditremark" />
+	</resultMap>
+
+	<!-- 查询所有照片 -->
+	<select id="findAllPhotodescPage" parameterType="Page" resultMap="App_photodescReturnMap">
+		select 
+			pd_id,pd_content,pd_cdate,user.uName pd_cuser,pd_photo_count,
+			pd_status,audit.uName pd_audituser,pd_audittime,pd_auditremark 
+		from app_photodesc
+		left JOIN users user on user.u_id=pd_cuser
+		left JOIN users audit on audit.u_id = pd_audituser
+		
+		where 1=1
+		<if test="t.pd_status!=null and t.pd_status!='' and t.pd_status!='all'">
+			and pd_status = #{t.pd_status}
+		</if>
+		<if test="t.pd_id!=null and t.pd_id!=''">
+			and pd_id = #{t.pd_id}
+		</if>
+		<if test="t.pd_content!=null and t.pd_content!=''">
+			and pd_content LIKE CONCAT(CONCAT('%', #{t.pd_content}),'%')
+		</if>
+		<if test="t.pd_cdate!=null and t.pd_cdate!=''">
+			and date(pd_cdate) = #{t.pd_cdate}
+		</if>
+		<if test="t.pd_audittime!=null and t.pd_audittime!=''">
+			and date(pd_audittime) = #{t.pd_audittime}
+		</if>
+		
+		order by pd_cdate desc
+	</select>
+
+
+	<resultMap type="com.app.dto.photo.App_photodescDTO" id="App_photodescDTOReturnMap">
+		<id column="pd_id" property="pd_id"/>
+		
+		<!-- 照片分类 -->
+		<collection property="classifys" ofType="com.app.entity.photo.App_classify" column="pd_id" select="app_photoclassifyMapper.findPhotoClassifyByDescId"></collection>
+		
+		<!-- 照片标签 -->
+		<collection property="labels" ofType="com.app.entity.photo.App_label" column="pd_id" select="app_photolabelMapper.findPhotoLabelByDescId"></collection>
+		
+		<!-- 照片路径 -->
+		<collection property="photos" ofType="com.app.entity.photo.App_photo" column="pd_id" select="app_photoMapper.findPhotoByDescId"></collection>
+		
+	</resultMap>
+	
+	<!-- 根据ID查询照片详情 -->
+	<select id="findPhotodescById" parameterType="String" resultMap="App_photodescDTOReturnMap">
+		select 
+			pd_id,pd_content,pd_cdate,user.uName pd_cuser,pd_photo_count,
+			pd_status,audit.uName pd_audituser,pd_audittime,pd_auditremark 
+		from app_photodesc
+		left JOIN users user on user.u_id=pd_cuser
+		left JOIN users audit on audit.u_id = pd_audituser
+		where pd_id = #{id}
+	</select>
+
+	<!-- 审核 -->
+	<update id="updatePhotodesc" parameterType="java.util.Map">
+		update app_photodesc set 
+		
+		pd_status = #{pd_status},
+		pd_audituser = #{userId},
+		pd_audittime = now(),
+		pd_auditremark = #{pd_auditremark}
+		<if test="pd_status==3">
+			,pd_delete = 1
+		</if>
+		<if test="pd_status==2">
+			,pd_delete = 0
+		</if>
+		where pd_id = #{pd_id}
+	</update>
+
+</mapper>

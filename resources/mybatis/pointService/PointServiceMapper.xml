@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- 地点服务基本信息表(pointService)Mapper -->
+<mapper namespace="pointServiceMapper">
+    <!--mybatis ehcache缓存配置 -->
+    <!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+    <!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+    <!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>  -->
+
+	<sql id="Base_Column_List">
+    	ps_id,ps_zh_name ,ps_en_name ,ps_type ,ps_province_id ,
+		ps_city_id ,ps_countys_id ,ps_address ,ps_coordinates ,
+		ps_traffic ,ps_create_time ,ps_create_user_id ,ps_auth_user_id ,
+		ps_auth_id ,ps_is_auth ,ps_state ,ps_error_comment ,ps_check_user_id ,
+		ps_update,ps_update_time
+    </sql>
+
+    <resultMap type="com.op.entity.pointService.PointService" id="PointServiceReturnMap">
+		<!-- id -->
+		<id column="ps_id" property="ps_id" />
+		<!-- 地点中文名 -->
+		<result column="ps_zh_name" property="ps_zh_name" />
+		<!-- 地点英文名 -->
+		<result column="ps_en_name" property="ps_en_name" />
+		<!-- 终极类型 -->
+		<result column="ps_type" property="ps_type" />
+		<!-- 省id -->
+		<result column="ps_province_id" property="ps_province_id" />
+		<!-- 市id -->
+		<result column="ps_city_id" property="ps_city_id" />
+		<!-- 区/县id -->
+		<result column="ps_countys_id" property="ps_countys_id" />
+		<!-- 详细地址 -->
+		<result column="ps_address" property="ps_address" />
+		<!-- 位置经纬度坐标（保存实例： (纬度,经度）） -->
+		<result column="ps_coordinates" property="ps_coordinates" />
+		<!-- 交通 -->
+		<result column="ps_traffic" property="ps_traffic" />
+		<!-- 创建时间 -->
+		<result column="ps_create_time" property="ps_create_time" />
+		<!-- 创建用户id -->
+		<result column="ps_create_user_id" property="ps_create_user_id" />
+		<!-- 认证人ID -->
+		<result column="ps_auth_user_id" property="ps_auth_user_id" />
+		<!-- 认证信息ID -->
+		<result column="ps_auth_id" property="ps_auth_id" />
+		<!-- 是否认证（0：否；1：是） -->
+		<result column="ps_is_auth" property="ps_is_auth" />
+		<!-- 发布状态(10：草稿；20：待审核；30：审核中；40：审核成功；50：审核失败；) -->
+		<result column="ps_state" property="ps_state" />
+		<!-- 审核失败备注 -->
+		<result column="ps_error_comment" property="ps_error_comment" />
+		<!-- 审核人 -->
+		<result column="ps_check_user_id" property="ps_check_user_id" />
+		<!-- 最后修改人 -->
+		<result column="ps_update" property="ps_update" />
+		<!-- 最后修改时间 -->
+		<result column="ps_update_time" property="ps_update_time" />
+   </resultMap>
+   
+   
+   <!-- 添加审核成功数据 -->
+   <insert id="saveByCheck" parameterType="com.op.entity.pointService.PointService" useGeneratedKeys="true" keyProperty="ps_id">
+		insert into PointService 
+		(
+			ps_zh_name ,ps_en_name ,ps_type ,ps_province_id ,ps_city_id ,ps_countys_id ,
+			ps_address ,ps_coordinates ,ps_traffic ,ps_create_time ,ps_create_user_id 
+		)
+		select 
+		    ps_zh_name ,ps_en_name ,ps_type ,ps_province_id ,ps_city_id ,ps_countys_id ,
+		    ps_address ,ps_coordinates ,ps_traffic ,ps_create_time ,ps_create_user_id 
+		from 
+		    PointServiceDeputy
+		where 
+		    ps_id = #{ps_id}
+   </insert>
+   
+  <!--  更新审核认证信息 -->
+  <update id="updateAuthExamine" parameterType="java.util.Map">
+		UPDATE PointService
+		SET 
+			ps_auth_user_id = #{user_id},
+			ps_auth_id = #{pa_id},
+			ps_is_auth = 1
+		WHERE ps_id =  #{update_id} and ps_is_auth = 0
+		
+   </update>
+	
+	<!-- 修改场馆信息 -->
+	<update id="updateByCheck" parameterType="com.op.entity.pointService.PointServiceDeputy">
+		update pointService set
+		
+		ps_zh_name = #{ps_zh_name},
+		ps_en_name = #{ps_en_name},
+		ps_type = #{ps_type},
+		ps_province_id = #{ps_province_id},
+		ps_city_id = #{ps_city_id},
+		ps_countys_id = #{ps_countys_id},
+		ps_address = #{ps_address},
+		ps_coordinates = #{ps_coordinates},
+		ps_traffic = #{ps_traffic},
+		ps_state = 40,
+		ps_check_user_id = #{ps_check_user_id}
+		
+		where ps_id = #{ps_point_service_id}
+	</update>
+	
+	
+	
+	
+</mapper>

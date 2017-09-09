@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ticketpriceMapper">
+	 
+
+	<select id="getTicketpriceListPage" parameterType="page" resultType="com.op.splot.entity.Ticketprice">
+		  SELECT
+		<![CDATA[
+        id ,bmoney ,emoney ,name ,status ,cdate ,notes 
+	    ]]>
+		  FROM s_ticketprice 
+		WHERE 1=1
+	</select>
+	 
+	<select id="getTicketpriceById" parameterType="com.op.splot.entity.Ticketprice" resultType="com.op.splot.entity.Ticketprice">
+		SELECT
+		 <![CDATA[
+        id ,bmoney ,emoney ,name ,status ,cdate ,notes 
+	    
+	        FROM s_ticketprice 
+	        WHERE 
+
+		        id = #{id } 
+	    ]]>
+	</select>
+	<insert id="saveTicketprice" parameterType="com.op.splot.entity.Ticketprice">
+		 <![CDATA[
+        INSERT INTO s_ticketprice (
+        	id ,
+        	bmoney ,
+        	emoney ,
+        	name ,
+        	status ,
+        	cdate ,
+        	notes 
+        ) VALUES (
+        	#{id} ,
+        	#{bmoney} ,
+        	#{emoney} ,
+        	#{name} ,
+        	#{status} ,
+        	now() ,
+        	#{notes} 
+        )
+    ]]>
+		<selectKey keyProperty="id" resultType="int">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+	</insert>
+	<update id="updateTicketprice" parameterType="com.op.splot.entity.Ticketprice">
+		<![CDATA[
+        UPDATE s_ticketprice SET
+	        bmoney = #{bmoney} ,
+	        emoney = #{emoney} ,
+	        name = #{name} ,
+	        status = #{status} ,
+	        cdate = now() ,
+	        notes = #{notes} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+	 
+</mapper>

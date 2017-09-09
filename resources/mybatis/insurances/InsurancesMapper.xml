@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- 保险信息(Insurances)Mapper -->
+<mapper namespace="InsurancesMapper">
+    <!--mybatis ehcache缓存配置 -->
+    <!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+    <!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+    <!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>  -->
+
+	<sql id="Base_Column_List">
+    productId,productName ,companyName ,startAge ,endAge ,type ,isEnable ,invalid ,operation_user ,update_time 
+    </sql>
+
+    <resultMap type="com.op.entity.insurances.Insurances" id="InsurancesReturnMap">
+		<!-- 保险产品ID -->
+      <id column="productId" property="productId"/>
+		<!-- 产品名称 -->
+      <result column="productName" property="productName"/>
+		<!-- 公司名称 -->
+      <result column="companyName" property="companyName"/>
+		<!-- 承保年龄开始 -->
+      <result column="startAge" property="startAge"/>
+		<!-- 承保年龄结束 -->
+      <result column="endAge" property="endAge"/>
+		<!-- 产品类型 0：境内旅意险，1：寿险健康险，2：境外旅意险，3：家财险 -->
+      <result column="type" property="type"/>
+		<!-- 是否启用(1：启用；2否[玩嘛]) -->
+      <result column="isEnable" property="isEnable"/>
+		<!-- 是否下架（0未下架，1下架[惠泽]） -->
+      <result column="invalid" property="invalid"/>
+		<!-- 操作人 -->
+      <result column="operation_user" property="operation_user"/>
+		<!-- 更新时间 -->
+      <result column="update_time" property="update_time"/>
+   </resultMap>
+   
+   
+   
+
+    <resultMap type="com.op.dto.insurances.InsurancesDTO" id="InsurancesDTOReturnMap">
+		<!-- 保险产品ID -->
+      <id column="productId" property="productId"/>
+		<!-- 产品名称 -->
+      <result column="productName" property="productName"/>
+		<!-- 公司名称 -->
+      <result column="companyName" property="companyName"/>
+		<!-- 承保年龄开始 -->
+      <result column="startAge" property="startAge"/>
+		<!-- 承保年龄结束 -->
+      <result column="endAge" property="endAge"/>
+		<!-- 产品类型 0：境内旅意险，1：寿险健康险，2：境外旅意险，3：家财险 -->
+      <result column="type" property="type"/>
+		<!-- 是否启用(1：启用；2否[玩嘛]) -->
+      <result column="isEnable" property="isEnable"/>
+		<!-- 是否下架（0未下架，1下架[惠泽]） -->
+      <result column="invalid" property="invalid"/>
+      
+      <!-- 保险计划集合 -->
+      <collection property="planList" ofType="com.op.entity.insurances.InsurancePlan" column="productId" select="InsurancePlanMapper.findPlanByProductId"></collection>
+      
+      <!-- 保险保障期限集合 -->
+      <collection property="dateLimitList" ofType="com.op.dto.insurances.InsurantDateLimitDTO" column="productId" select="InsurantDateLimitMapper.findDateLimitByProductId"></collection>
+      
+   </resultMap>
+   
+   
+  <!-- 新增保险信息 -->
+  <insert id="initInsurances" parameterType="java.util.Map" useGeneratedKeys="false">
+	insert into Insurances
+	(productId,productName ,companyName ,type,isEnable,invalid ,operation_user,update_time )
+	VALUES
+	<foreach collection="productlist" item="item" index="index" separator=",">
+	(
+		#{item.prodId},#{item.name},#{item.companyName},#{item.type},2,
+	  	<if test="item.invalid == true">
+			1
+	  	</if>
+	  	<if test="item.invalid == false">
+			0
+	  	</if>
+		,#{user_id},now()
+	)
+	</foreach>
+  </insert>
+  
+  <!-- 删除所有保险 -->
+  <delete id="deleteInsurances">
+  		DELETE FROM Insurances
+  </delete>
+  
+  	<!-- 分页获取所有保险 -->
+  <select id="getInsurancesListPage" parameterType="Page" resultType="com.op.dto.insurances.InsurancesDTO">
+  		select 
+		   i.productId,productName ,companyName ,startAge ,endAge ,type ,isEnable,invalid ,uName userName,update_time
+		  <!--  , planId,caseCode ,planName  -->
+		from
+		   Insurances i
+		<!-- left join 
+		  InsurancePlan ip on ip.productId = i.productId -->
+		left join users on U_ID =  operation_user  
+  </select>
+  
+   <!-- 分页获取所有保险 -->
+  <select id="findInsurancesById" parameterType="int" resultMap="InsurancesDTOReturnMap">
+  		select 
+		  productId,productName ,companyName ,startAge ,endAge ,type ,isEnable ,invalid
+		from
+		   Insurances
+		where 
+		 	productId = #{productId}   
+  </select>
+	
+	<update id="updateInsurances" parameterType="map">
+		update Insurances set startAge = #{startAge} ,endAge = #{endAge}
+		,operation_user = #{user_id} ,update_time = now()
+		where
+		  productId = #{productId}  
+	</update>
+	
+	<!-- 禁用启用保险 -->
+	<update id="isEnable" parameterType="map">
+		update Insurances set isEnable = case when isEnable = 1 then 2 else 1  end 
+		,operation_user = #{user_id} ,update_time = now()
+		where
+		  productId = #{productId}   
+		  and invalid = 0
+	</update>
+	
+</mapper>

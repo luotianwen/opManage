@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="spotMapper">
+	 
+
+	<select id="getSpotListPage" parameterType="page" resultType="com.op.splot.entity.Spot">
+		  SELECT
+
+        s.id ,s.name ,sp.name as level ,s.price ,s.address ,
+        s.scenicspotintroduction , s.labelss ,
+        s.cdate ,s.status ,  s.website ,
+	    s.suitablecrowd ,s.lastdate
+		  FROM s_spot s
+		   LEFT  JOIN  s_spotlevel sp on sp.id=s.level
+		WHERE 1=1
+		<if test="t.id!= null and t.id!= '' ">
+			AND s.id = #{t.id}
+		</if>
+		<if test="t.name!= null and t.name!= '' ">
+			AND s.name LIKE CONCAT(CONCAT('%', #{t.name}),'%')
+		</if>
+		<if test=" t.status!=10 ">
+			AND s.status = #{t.status}
+		</if>
+		<if test="t.cdate!=null and t.cdate!='' ">
+			AND date(s.cdate) = #{t.cdate}
+		</if>
+		<if test="t.lastdate!=null and t.lastdate!='' ">
+			AND date(s.lastdate) = #{t.lastdate}
+		</if>
+		
+		order by s.cdate desc,s.id desc
+	</select>
+	 
+	<select id="getSpotById" parameterType="int" resultType="com.op.splot.entity.Spot">
+		SELECT
+
+        id ,name ,level ,price ,address ,scenicspotintroduction ,channel ,labelss ,cdate ,status ,resourceId ,type ,province ,city ,area ,website ,longitude ,latitude ,url 
+	    ,suitablecrowd,lastdate
+	        FROM s_spot 
+	        WHERE 
+
+		        id = #{id}
+
+	</select>
+	<insert id="saveSpot" parameterType="com.op.splot.entity.Spot">
+
+        INSERT INTO s_spot (
+        	id ,
+        	name ,
+        	level ,
+        	price ,
+        	address ,
+        	scenicspotintroduction ,
+        	channel ,
+        	labelss ,
+        	cdate ,
+        	status ,
+        	resourceId ,
+        	type ,
+        	province ,
+        	city ,
+        	area ,
+        	website ,
+        	longitude ,
+        	latitude ,
+        	url ,
+		   suitablecrowd,
+		lastdate
+        ) VALUES (
+        	#{id} ,
+        	#{name} ,
+        	#{level} ,
+        	#{price} ,
+        	#{address} ,
+        	#{scenicspotintroduction} ,
+        	#{channel} ,
+        	#{labelss} ,
+        	now() ,
+        	#{status} ,
+        	#{resourceId} ,
+        	#{type} ,
+        	#{province} ,
+        	#{city} ,
+        	#{area} ,
+        	#{website} ,
+        	#{longitude} ,
+        	#{latitude} ,
+        	#{url},
+		#{suitablecrowd},
+		now()
+        )
+
+		<selectKey keyProperty="id" resultType="int">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+	</insert>
+
+	<update id="updateSpotStatus" parameterType="com.op.splot.entity.Spot">
+		 UPDATE s_spot SET
+			 lastdate = now() ,
+				status = #{status}
+	        WHERE
+	        id = #{id}
+	</update>
+	<select id="getscenicspotintroduction" parameterType="com.op.splot.entity.Spot" resultType="int">
+		select count(id) from s_scenicspotintroduction where sid=#{id}
+	</select>
+
+
+	<update id="updateSpot" parameterType="com.op.splot.entity.Spot">
+		<![CDATA[
+        UPDATE s_spot SET
+	        name = #{name} ,
+	        level = #{level} ,
+	        price = #{price} ,
+	        address = #{address} ,
+	        scenicspotintroduction = #{scenicspotintroduction} ,
+	        channel = #{channel} ,
+	        labelss = #{labelss} ,
+	        lastdate = now() ,
+	        status = #{status} ,
+	        resourceId = #{resourceId} ,
+	        type = #{type} ,
+	        province = #{province} ,
+	        city = #{city} ,
+	        area = #{area} ,
+	       suitablecrowd= #{suitablecrowd},
+	        website = #{website} ,
+	        longitude = #{longitude} ,
+	        latitude = #{latitude} ,
+	        url = #{url} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+	 
+</mapper>

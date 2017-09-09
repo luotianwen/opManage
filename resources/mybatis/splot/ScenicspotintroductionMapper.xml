@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="scenicspotintroductionMapper">
+	 
+
+	<select id="getScenicspotintroductionListPage" parameterType="page" resultType="com.op.splot.entity.Scenicspotintroduction">
+		SELECT
+		t.id , s.id as sid ,t.content  ,s.name
+		FROM
+		s_spot s
+		left join
+		s_scenicspotintroduction t
+		on t.sid=s.id
+		WHERE 1=1
+		<if test="t!= null and t!= '' ">
+			AND s.name LIKE CONCAT(CONCAT('%', #{t}),'%')
+		</if>
+		order by s.cdate desc,s.id desc
+
+	</select>
+	 
+	<select id="getScenicspotintroductionById" parameterType="String" resultType="com.op.splot.entity.Scenicspotintroduction">
+		SELECT
+		 <![CDATA[
+        id ,sid ,content 
+	    
+	        FROM s_scenicspotintroduction 
+	        WHERE 
+
+		        id = #{id } 
+	    ]]>
+	</select>
+	<insert id="saveScenicspotintroduction" parameterType="com.op.splot.entity.Scenicspotintroduction">
+		 <![CDATA[
+        INSERT INTO s_scenicspotintroduction (
+        	id ,
+        	sid ,
+        	content 
+        ) VALUES (
+        	#{id} ,
+        	#{sid} ,
+        	#{content} 
+        )
+    ]]>
+		<selectKey keyProperty="id" resultType="int">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+	</insert>
+	<update id="updateScenicspotintroduction" parameterType="com.op.splot.entity.Scenicspotintroduction">
+		<![CDATA[
+        UPDATE s_scenicspotintroduction SET
+	        sid = #{sid} ,
+	        content = #{content} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+	 
+</mapper>

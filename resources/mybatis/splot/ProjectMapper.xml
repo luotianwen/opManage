@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="projectMapper">
+	 
+
+	<select id="getProjectListPage" parameterType="page" resultType="com.op.splot.entity.Project">
+		  SELECT
+
+        id ,name ,status ,cdate ,notes 
+
+		  FROM s_project 
+		WHERE 1=1
+		<if test="t!= null and t!= '' ">
+			AND name LIKE CONCAT(CONCAT('%', #{t}),'%')
+		</if>
+	</select>
+	 
+	<select id="getProjectById" parameterType="int" resultType="com.op.splot.entity.Project">
+		SELECT
+
+        id ,name ,status ,cdate ,notes 
+	    
+	        FROM s_project 
+	        WHERE 
+		        id =  #{id}
+
+	</select>
+	<insert id="saveProject" parameterType="com.op.splot.entity.Project">
+		 <![CDATA[
+        INSERT INTO s_project (
+
+        	name ,
+        	status ,
+			cdate,
+        	notes 
+        ) VALUES (
+
+        	#{name} ,
+        	#{status} ,
+        	now(),
+        	#{notes}
+        )
+    ]]>
+		<selectKey keyProperty="id" resultType="int">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+	</insert>
+	<update id="updateProject" parameterType="com.op.splot.entity.Project">
+		<![CDATA[
+        UPDATE s_project SET
+	        name = #{name} ,
+	        status = #{status} ,
+	        cdate = now() ,
+	        notes = #{notes}
+        WHERE 
+	        id = #{id}
+    ]]>
+	</update>
+	 
+</mapper>

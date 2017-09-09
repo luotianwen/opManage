@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="spotcommentMapper">
+
+	<select id="getSpotcommentListPage" parameterType="page" resultType="com.op.splot.entity.Spotcomment">
+		  SELECT
+		<![CDATA[
+        stc.id ,userid ,username ,userpho ,sdate ,content ,stc.status ,sid ,num ,sp.name sname
+	    ]]>
+		  FROM s_spotcomment stc
+		  left join s_spot sp on sp.id = stc.sid
+		WHERE 1=1
+		<if test="t!=null">
+			<if test="t.sid!='' and t.sid!=null">
+				and sid = #{t.sid}
+			</if>
+			<if test="t.sname!='' and t.sname!=null">
+				and sp.name LIKE CONCAT(CONCAT('%', #{t.sname}),'%')
+			</if>
+			<if test="t.status!='' and t.status!=null and t.status!=10">
+				and stc.status = #{t.status}
+			</if>
+		</if>
+		ORDER BY INSTR( '3,0,2,1', stc.status ) desc, sp.cdate desc,sp.id desc
+	</select>
+	 
+	 <resultMap type="com.op.splot.entity.Spotcomment" id="SpotcommentResultMap">
+	 	<id column="id" property="id"/>
+	 	
+	 	<!-- 点评小类 -->
+		<collection property="commentPho" ofType="com.op.splot.entity.CommentPho" column="id" select="commentPhoMapper.findCommentPhoByCid" ></collection>
+   		<!-- 点评图片 -->
+		<collection property="commentProject" ofType="com.op.splot.entity.CommentProject" column="id" select="commentProjectMapper.findCommentProjectByCid" ></collection>
+	 	
+	 </resultMap>
+	 
+	<select id="getSpotcommentById" parameterType="String" resultMap="SpotcommentResultMap">
+		SELECT
+		 <![CDATA[
+        spc.id ,userid ,username ,userpho ,sdate ,content ,spc.status ,sid ,num ,sp.name sname
+	    
+	        FROM s_spotcomment spc
+	        left join s_spot sp on sp.id = spc.sid
+	        WHERE 
+
+		        spc.id = #{id } 
+	    ]]>
+	</select>
+	<insert id="saveSpotcomment" parameterType="com.op.splot.entity.Spotcomment">
+		 <![CDATA[
+        INSERT INTO s_spotcomment (
+        	id ,
+        	userid ,
+        	username ,
+        	userpho ,
+        	sdate ,
+        	content ,
+        	status ,
+        	sid ,
+        	num 
+        ) VALUES (
+        	#{id} ,
+        	#{userid} ,
+        	#{username} ,
+        	#{userpho} ,
+        	now() ,
+        	#{content} ,
+        	1 ,
+        	#{sid} ,
+        	#{num} 
+        )
+    ]]>
+	</insert>
+	<update id="updateSpotcomment" parameterType="com.op.splot.entity.Spotcomment">
+		<![CDATA[
+        UPDATE s_spotcomment SET
+	        status = #{status}
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+	 
+</mapper>

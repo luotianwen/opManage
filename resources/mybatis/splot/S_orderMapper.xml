@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- 景点订单(s_order)Mapper -->
+<mapper namespace="s_orderMapper">
+    <!--mybatis ehcache缓存配置 -->
+    <!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+    <!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+    <!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>  -->
+
+	<sql id="Base_Column_List">
+    orderId,user_id ,channel ,agentOrderId ,productSn ,productName ,productType ,
+    unitPrice ,count ,retailPrice ,settlementPrice ,order_total_price ,isSendSms ,
+    payType ,inDate ,validTimeBegin ,validTimeEnd ,feature ,fetchName ,fetchPhone ,
+    sex ,cardType ,cardNum ,codeNumber ,emsContent ,ticketTimeInfo ,isRealName ,
+    status ,pay_status ,pay_time ,usedNum ,usedState ,trade_no ,create_time ,
+    isSuccess ,errorCode ,errorMsg ,dealTime 
+    </sql>
+
+    <resultMap type="com.op.splot.entity.S_order" id="S_orderReturnMap">
+		<!-- 订单编号 -->
+      <id column="orderId" property="orderId"/>
+		<!-- 用户id -->
+      <result column="user_id" property="user_id"/>
+		<!-- 渠道id -->
+      <result column="channel" property="channel"/>
+		<!-- 对接方订单编号（暂以出游人为准） -->
+      <result column="agentOrderId" property="agentOrderId"/>
+		<!-- 产品编号 -->
+      <result column="productSn" property="productSn"/>
+		<!-- 产品名称 -->
+      <result column="productName" property="productName"/>
+		<!-- 产品种类 -->
+      <result column="productType" property="productType"/>
+		<!-- 产品单价（单位：分） -->
+      <result column="unitPrice" property="unitPrice"/>
+		<!-- 产品数量 -->
+      <result column="count" property="count"/>
+		<!-- 建议售价（单位：分） -->
+      <result column="retailPrice" property="retailPrice"/>
+		<!-- 结算价格（单位：分） -->
+      <result column="settlementPrice" property="settlementPrice"/>
+		<!-- 订单支付总金额 -->
+      <result column="order_total_price" property="order_total_price"/>
+		<!-- 是否发送短信（1、发送；0：不发送） -->
+      <result column="isSendSms" property="isSendSms"/>
+		<!-- 支付方式（1、在线支付） -->
+      <result column="payType" property="payType"/>
+		<!-- 入园日期 -->
+      <result column="inDate" property="inDate"/>
+		<!-- 电子票开始时间 -->
+      <result column="validTimeBegin" property="validTimeBegin"/>
+		<!-- 电子票结束时间 -->
+      <result column="validTimeEnd" property="validTimeEnd"/>
+		<!-- 备用 -->
+      <result column="feature" property="feature"/>
+		<!-- 取票人姓名 -->
+      <result column="fetchName" property="fetchName"/>
+		<!-- 取票人手机 -->
+      <result column="fetchPhone" property="fetchPhone"/>
+		<!-- 取票人性别（0:男,1:女） -->
+      <result column="sex" property="sex"/>
+		<!-- 证件类型 -->
+      <result column="cardType" property="cardType"/>
+		<!-- 证件号码 -->
+      <result column="cardNum" property="cardNum"/>
+		<!-- 辅助码 -->
+      <result column="codeNumber" property="codeNumber"/>
+		<!-- 短信内容 -->
+      <result column="emsContent" property="emsContent"/>
+		<!-- 电子票日期 -->
+      <result column="ticketTimeInfo" property="ticketTimeInfo"/>
+		<!-- 是否实名认证(0：否、1：是) -->
+      <result column="isRealName" property="isRealName"/>
+		<!-- 订单状态（0：等待付款、1：已付款、2：等待出票、3：已出票、4：申请退款、5：部分申请退款、6：退款成功、7：部分退款成功、8：拒绝退票、9：已完成、10：已取消） -->
+      <result column="status" property="status"/>
+		<!-- 付款状态（0：等待支付、1：付款成功、2：退款中、3：已退款） -->
+      <result column="pay_status" property="pay_status"/>
+		<!-- 付款时间 -->
+      <result column="pay_time" property="pay_time"/>
+		<!-- 电子票已验证数量 -->
+      <result column="usedNum" property="usedNum"/>
+		<!-- 电子票使用状态 -->
+      <result column="usedState" property="usedState"/>
+		<!-- 支付宝交易号 -->
+      <result column="trade_no" property="trade_no"/>
+		<!-- 创建时间 -->
+      <result column="create_time" property="create_time"/>
+		<!-- 操作是否成功 -->
+      <result column="isSuccess" property="isSuccess"/>
+		<!-- 错误码 -->
+      <result column="errorCode" property="errorCode"/>
+		<!-- 错误说明 -->
+      <result column="errorMsg" property="errorMsg"/>
+		<!-- 处理完成时间 -->
+      <result column="dealTime" property="dealTime"/>
+      
+      
+      
+   </resultMap>
+	
+	
+	<!-- 用户订单信息 -->
+	<resultMap type="com.op.splot.dto.splot.SpotOrderInfoDTO" id="spotOrderResultMap">
+		<id column="orderId" property="orderId"/>
+		
+		<!-- 订单出游人 -->
+		<collection property="travelPeople" ofType="com.op.splot.entity.S_orderTravelPeople" column="orderId" select="s_orderTravelPeopleMapper.getOrderTravelPeople" ></collection>
+	</resultMap>
+	
+	<!-- 查询用户所有订单 -->
+	<select id="getAllUserOrderPage" parameterType="Page" resultMap="spotOrderResultMap">
+		select
+  			<include refid="Base_Column_List"></include>,users.uName
+  		from
+  			s_order
+  		left join users on users.u_id = s_order.user_id
+  		where
+  			1=1
+  		
+  		<if test="t.orderId!='' and t.orderId!=null">
+  			and orderId = #{t.orderId}
+  		</if>
+  		<if test="t.productName!='' and t.productName!=null">
+  			and pay_status = 0 and status = 0
+  		</if>
+  		
+  		<if test="t.tabCode=='waitPay'">
+  			and pay_status = 0 and status = 0
+  		</if>
+  		<if test="t.tabCode=='pay'">
+  			and pay_status = 1 and (status = 1 or status = 2 or status = 3 or status = 5 or status = 7 or status = 8 or status = 9 or status = 12 or status = 13)
+  		</if>
+  		<if test="t.tabCode=='waitRefund'">
+  			and (pay_status = 1 or pay_status = 2 or pay_status = 4) and (status=4 or status=11)
+  		</if>
+  		<if test="t.tabCode=='refund'">
+  			and pay_status = 3 and status = 6
+  		</if>
+  		<if test="t.tabCode=='close'">
+  			and pay_status = 10
+  		</if>
+  		
+  		<if test="t.channel!='' and t.channel!=null">
+  			and channel = #{t.channel}
+  		</if>
+  		
+  		<if test="t.create_time_star!='' and t.create_time_star!=null">
+  			and create_time > #{t.create_time_star}
+  		</if>
+  		<if test="t.create_time_end!='' and t.create_time_end!=null">
+  			and create_time <![CDATA[<]]> #{t.create_time_end}
+  		</if>
+  		<if test="t.create_time!='' and t.create_time!=null">
+  			and create_time > #{t.create_time} and create_time <![CDATA[<=]]> CONCAT(#{t.create_time}," 23:59")
+  		</if>
+  		
+  		<if test="t.pay_time_star!='' and t.pay_time_star!=null">
+  			and pay_time > #{t.pay_time_star}
+  		</if>
+  		<if test="t.pay_time_end!='' and t.pay_time_end!=null">
+  			and pay_time <![CDATA[<]]> #{t.pay_time_end}
+  		</if>
+  		
+  		
+  		
+  		
+  		order by create_time desc
+	</select>
+	
+	<!-- 查看订单详情 -->
+	<select id="findUserOrderInfo" parameterType="java.util.Map" resultMap="spotOrderResultMap">
+		select
+  			so.orderId,so.user_id ,so.channel ,so.agentOrderId ,so.productSn ,so.productName ,so.productType ,
+		    so.unitPrice ,so.count ,so.retailPrice ,so.settlementPrice ,so.order_total_price ,so.isSendSms ,
+		    so.payType ,so.inDate ,so.validTimeBegin ,so.validTimeEnd ,so.feature ,so.fetchName ,so.fetchPhone ,
+		    so.sex ,so.cardType ,so.cardNum ,so.codeNumber ,so.emsContent ,so.ticketTimeInfo ,so.isRealName ,
+		    so.status ,so.pay_status ,so.pay_time ,so.usedNum ,so.usedState ,so.trade_no ,so.create_time ,
+		    so.isSuccess ,so.errorCode ,so.errorMsg ,so.dealTime ,
+		    sp.isRefund p_isRefund,users.uName
+  		from S_order so
+  		left join s_product sp on sp.productSn = so.productSn
+  		left join users on users.u_id = so.user_id
+  		
+  		where
+  			orderId = #{id}
+	</select>
+    <select id="spotMoneyList" parameterType="com.op.splot.dto.splot.SearchVO" resultMap="spotOrderResultMap">
+        SELECT
+        IFNULL(ROUND(IFNULL(SUM(D.retailPrice),0)/100.0,2),0) retailPrice,
+        IFNULL(ROUND(IFNULL(SUM(D.settlementPrice),0)/100.0,2),0) settlementPrice,
+        IFNULL(ROUND(IFNULL(SUM(D.retailPrice-D.settlementPrice),0)/100.0,2),0) price,
+        sum(D.count) count
+        <if  test="rowFieldVO.isShowDate==1">
+            ,DATE_FORMAT(o.create_time,'%Y-%m-%d') create_time
+        </if>
+        <if  test="rowFieldVO.isShowDate==0">
+            ,null   create_time
+        </if>
+
+        <if  test="rowFieldVO.isShowChannel==1">
+            ,  o.channel
+        </if>
+        <if  test="rowFieldVO.isShowChannel==0">
+            ,null   channel
+        </if>
+        FROM s_ordertravelpeople D,
+        s_order o
+
+        WHERE 1=1
+        <if test="startDate != null and startDate != ''">
+            AND o.create_time  >= ${startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            and #{endDate} >= o.create_time
+        </if>
+
+
+        <if  test="channelId>0">
+            AND o.channel = #channelId#
+        </if>
+
+        and D.pay_status=1
+        and D.orderId=o.orderId
+        <if  test="channelId>0">
+            AND o.channel = #channelId#
+        </if>
+        GROUP BY
+
+
+            <if test="rowFieldVO.isShowDate==1 and  rowFieldVO.isShowChannel==0">
+                DATE_FORMAT(o.create_time,'%Y-%m-%d')
+            </if>
+
+            <if test="rowFieldVO.isShowDate==0 and  rowFieldVO.isShowChannel==1">
+                o.channel
+            </if>
+            <if test="rowFieldVO.isShowDate==1 and  rowFieldVO.isShowChannel==1">
+                DATE_FORMAT(o.create_time,'%Y-%m-%d')  , o.channel
+            </if>
+
+         ORDER BY
+
+
+            <if test="rowFieldVO.isShowDate==1 and  rowFieldVO.isShowChannel==0">
+                DATE_FORMAT(o.create_time,'%Y-%m-%d')ASC
+            </if>
+            <if test="rowFieldVO.isShowDate==0 and  rowFieldVO.isShowChannel==1">
+                o.channel ASC
+            </if>
+            <if test="rowFieldVO.isShowDate==1 and  rowFieldVO.isShowChannel==1">
+                DATE_FORMAT(o.create_time,'%Y-%m-%d') ASC , o.channel ASC
+            </if>
+
+
+
+
+    </select>
+</mapper>

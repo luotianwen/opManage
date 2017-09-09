@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- APP版本发布(app_version)Mapper -->
+<mapper namespace="app_versionMapper">
+	<!--mybatis ehcache缓存配置 -->
+	<!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+	<!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+
+	<sql id="Base_Column_List">
+		id,ver ,update_content ,release_time ,link ,download_count ,isNewest
+		,release_userid
+	</sql>
+
+	<resultMap type="com.app.entity.photo.App_version" id="App_versionReturnMap">
+		<!-- id -->
+		<id column="id" property="id" />
+		<!-- APP版本号 -->
+		<result column="ver" property="ver" />
+		<!-- 更新内容 -->
+		<result column="update_content" property="update_content" />
+		<!-- 发布时间 -->
+		<result column="release_time" property="release_time" />
+		<!-- 下载链接 -->
+		<result column="link" property="link" />
+		<!-- 更新(下载)次数 -->
+		<result column="download_count" property="download_count" />
+		<!-- 是否最新版本(1：是、2：否) -->
+		<result column="isNewest" property="isNewest" />
+		<!-- 发布人 -->
+		<result column="release_userid" property="release_userid" />
+	</resultMap>
+
+	<!-- 查询所有版本号 -->
+	<select id="findAllversionPage" parameterType="Page" resultMap="App_versionReturnMap">
+		select
+		id,ver ,update_content ,release_time ,link ,download_count ,isNewest
+		,users.uName release_userid
+		from app_version
+		left join users on users.u_id = release_userid
+		order by release_time desc
+	</select>
+	
+	<!-- 根据ID查询版本号 -->
+	<select id="findversionById" parameterType="String" resultMap="App_versionReturnMap">
+		select
+		id,ver ,update_content ,release_time ,link ,download_count ,isNewest
+		,release_userid
+		from app_version
+		where id = #{id}
+	</select>
+	
+	<!-- 修改版本信息 -->
+	<update id="updateversion" parameterType="com.app.entity.photo.App_version">
+		update app_version set
+		ver = #{ver},
+		update_content = #{update_content},
+		link = #{link},
+		isNewest = #{isNewest}
+		where id = #{id}
+	</update>
+	
+	<!-- 新增版本信息 -->
+	<insert id="saveversion" parameterType="com.app.entity.photo.App_version">
+		insert into app_version
+		(
+			ver ,update_content ,release_time ,link ,download_count ,isNewest
+			,release_userid
+		)
+		values
+		(
+			#{ver },#{update_content },now() ,#{link },#{download_count },2,
+			#{release_userid}
+		)
+	</insert>
+
+	<!-- 修改所有版本的最新版本 -->
+	<update id="updateversionFroNewest">
+		update app_version set
+		isNewest = 2
+	</update>
+	
+</mapper>

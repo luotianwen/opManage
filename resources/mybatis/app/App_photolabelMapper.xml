@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 图片标签(app_photolabel)Mapper -->
+<mapper namespace="app_photolabelMapper">
+	<!--mybatis ehcache缓存配置 -->
+	<!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+	<!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+
+	<sql id="Base_Column_List">
+		pl_id,pd_id ,pl_content,l_id
+	</sql>
+
+	<resultMap type="com.app.entity.photo.App_photolabel" id="App_photolabelReturnMap">
+		<!-- ID -->
+		<id column="pl_id" property="pl_id" />
+		<!-- 描述ID -->
+		<result column="pd_id" property="pd_id" />
+		<!-- 内容 -->
+		<result column="pl_content" property="pl_content" />
+		<!-- 标签ID -->
+		<result column="l_id" property="l_id"/>
+	</resultMap>
+
+	<!-- 根据描述ID查询照片标签 -->
+	<select id="findPhotoLabelByDescId" parameterType="String" resultMap="App_photolabelReturnMap">
+		select pl_id,pd_id ,pl_content,l_id from app_photolabel
+		where pd_id = #{pd_id}
+	</select>
+
+	<!-- 查询所有用户图片标签 -->
+	<select id="findAllapp_photolabelPage" parameterType="Page" resultMap="App_photolabelReturnMap">
+		select
+			pl_id ,
+			pd_id ,
+			pl_content ,
+			l_id 
+		from app_photolabel
+		where 1=1
+		<if test="t!=null and t!=''">
+			and pl_content like CONCAT(CONCAT('%', #{t}),'%')
+		</if>
+		order by pl_id desc
+	</select>
+	
+	<!-- 修改用户图片标签 -->
+	<update id="updateapp_photolabel" parameterType="com.app.entity.photo.App_label">
+		update app_photolabel set
+		l_id = #{l_id}
+		where pl_content = #{l_name}
+	</update>
+	
+	
+</mapper>

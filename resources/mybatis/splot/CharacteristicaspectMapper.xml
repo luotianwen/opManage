@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="characteristicaspectMapper">
+	 
+
+	<select id="getCharacteristicaspectListPage" parameterType="page" resultType="com.op.splot.entity.Characteristicaspect">
+		SELECT
+		t.id , s.id as sid ,t.content  ,s.name as sname,t.name
+		FROM
+		s_spot s
+		left join
+		s_characteristicaspect t
+		on t.sid=s.id
+		WHERE 1=1
+		<if test="t!= null and t!= '' ">
+			AND s.name LIKE CONCAT(CONCAT('%', #{t}),'%')
+		</if>
+		order by s.cdate desc,s.id desc
+
+	</select>
+	 
+	<select id="getCharacteristicaspectById" parameterType="String" resultType="com.op.splot.entity.Characteristicaspect">
+		SELECT
+		 <![CDATA[
+        id ,sid ,content ,name
+	    
+	        FROM s_characteristicaspect 
+	        WHERE 
+
+		        id = #{id}
+	    ]]>
+	</select>
+	<insert id="saveCharacteristicaspect" parameterType="com.op.splot.entity.Characteristicaspect">
+		 <![CDATA[
+        INSERT INTO s_characteristicaspect (
+        	id ,
+        	sid ,
+        	content ,
+        	name
+        ) VALUES (
+        	#{id} ,
+        	#{sid} ,
+        	#{content} ,
+        	#{name}
+        )
+    ]]>
+		<selectKey keyProperty="id" resultType="int">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+	</insert>
+	<update id="updateCharacteristicaspect" parameterType="com.op.splot.entity.Characteristicaspect">
+		<![CDATA[
+        UPDATE s_characteristicaspect SET
+	        sid = #{sid} ,
+	        content = #{content} ,
+	        name=#{name}
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+	<delete id="deleteCharacteristicaspect" parameterType="String">
+		delete   from s_characteristicaspect WHERE
+		id = #{id}
+	</delete>
+</mapper>

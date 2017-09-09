@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="EmailTemplate">
+
+    <!--mybatis ehcache缓存配置 -->
+    <!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 -->
+    <!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+    <!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>  -->
+
+
+	<sql id="Base_Column_List">
+    et_id,et_name ,et_title,et_template,remarks,createTime,lastUpdateTime,createUser
+    </sql>
+
+    <resultMap type="com.op.entity.email.EmailTemplate" id="EmailTemplateReturnMap">
+      <id column="et_id" property="et_id"/>
+      <result column="et_name" property="et_name"/>
+      <result column="et_title" property="et_title"/>
+      <result column="et_template" property="et_template"/>
+      <result column="remarks" property="remarks"/>
+      <result column="createTime" property="createTime"/>
+      <result column="lastUpdateTime" property="lastUpdateTime"/>
+      <result column="createUser" property="createUser"/>
+   </resultMap>
+
+	  
+
+   <!--根据ID获取模板详细信息 -->
+   <select id="findEmailTemplateById" parameterType="String" resultMap="EmailTemplateReturnMap" >
+	   	SELECT et_id,et_name ,et_title,et_template,remarks
+	   	FROM EmailTemplate WHERE
+	   	 et_id = #{et_id} 
+   </select>
+
+	<!-- 初始化模板缓存数据 -->
+   <select id="initEmailTemplate" resultType="com.op.entity.email.EmailTemplate" >
+	   	SELECT et_id,et_title,et_template
+	   	FROM EmailTemplate 
+   </select>  
+ 
+   <select id="selectEmailTemplatePage" parameterType="Page" resultMap="EmailTemplateReturnMap" >
+	   	SELECT et_id,et_name ,et_title,createTime,lastUpdateTime,createUser
+	   	FROM EmailTemplate 
+	   	where 1=1
+	   	<!-- 按模板名称查询 -->
+		<if test="t.et_name != null and t.et_name != '' ">
+			AND et_name = #{t.et_name} 
+		</if>
+   </select>  
+ 
+	
+   <!-- save -->
+   <insert id="saveEmailTemplate" parameterType="com.op.entity.email.EmailTemplate" >
+   insert into EmailTemplate (et_id,et_name ,et_title,et_template)
+   values (#{et_id},#{et_name},#{et_title},#{et_template})
+   </insert>
+ 
+   
+   <update id="updateEmailTemplate" parameterType="java.util.HashMap">
+  		 update EmailTemplate set et_name = #{et_name},et_title=#{et_title},et_template=#{et_template}
+  		 ,lastUpdateTime=now() where et_id=#{et_id}
+   </update>
+   
+      
+</mapper>

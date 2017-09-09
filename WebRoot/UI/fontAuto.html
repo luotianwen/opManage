@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head> 
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>jQuery实现 div里面的文字如何自动缩小</title>
+<script src="js/jquery-2.1.1.min.js"></script>
+
+<style type="text/css">
+
+.box{ width:400px; height:400px; padding:10px; margin:20px; background:#999999; }
+.content{ color:#fff; font-size:20px;}
+</style>
+</head>
+
+<body>
+<div class="box">
+    <div class="content" >
+    jQuery实现 div里面的文字如何自动缩小jQuery实现 div里面的文字如何自动缩小
+    jQuery实现 div里面的文字如何自动缩小jQuery实现 div里面的文字如何自动缩小
+    jQuery实现 div里面的文字如何自动缩小jQuery实现 div里面的文字如何自动缩小
+    jQuery实现 div里面的文字如何自动缩小jQuery实现 div里面的文字如何自动缩小
+    jQuery实现 div里面的文字如何自动缩小jQuery实现 div里面的文字如何自动缩小
+    jQuery实现 div里面的文字如何自动缩小jQuery实现 div里面的文字如何自动缩小
+    jQuery实现 div里面的文字如何自动缩小jQuery实现 div里面的文字如何自动缩小
+    jQuery实现 div里面的文字如何自动缩小jQuery实现 div里面的文字如何自动缩小
+    jQuery实现 div里面的文字如何自动缩小jQuery实现 div里面的文字如何自动缩小
+    jQuery实现 div里面的文字如何自动缩小jQuery实现 div里面的文字如何自动缩小 
+    jQuery实现 div里面的文字如何自动缩小jQuery实现 div里面的文字如何自动缩小
+    jQuery实现 div里面的文字如何自动缩小jQuery实现 div里面的文字如何自动缩小 
+    </div>
+</div>
+<script type="text/javascript">
+$(function(){
+    function minsize(){
+       
+    var $box=$(".box");
+    var $content=$(".content");
+    if($content.height() >= $box.height()){
+        $content.css('font-size',parseInt($content.css('font-size'))-1 +'px');
+        arguments.callee();  //callee表示对函数对象本身的引用，这有利于实现无名函数的递归或者保证函数的封装性
+        }
+        }
+        minsize();
+    })
+</script>
+</body>
+</html>

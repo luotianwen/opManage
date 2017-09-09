@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- 保险保障期限(InsurantDateLimit)Mapper -->
+<mapper namespace="InsurantDateLimitMapper">
+    <!--mybatis ehcache缓存配置 -->
+    <!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+    <!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+    <!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>  -->
+
+	<sql id="Base_Column_List">
+    id,productId ,minDeadline ,maxDeadline ,unit 
+    </sql>
+
+    <resultMap type="com.op.entity.insurances.InsurantDateLimit" id="InsurantDateLimitReturnMap">
+		<!-- id -->
+      <id column="id" property="id"/>
+		<!-- 保险产品ID -->
+      <result column="productId" property="productId"/>
+		<!-- 最低保障期限 -->
+      <result column="minDeadline" property="minDeadline"/>
+		<!-- 最长保障期限 -->
+      <result column="maxDeadline" property="maxDeadline"/>
+		<!-- 期限单位（1：天；2：年） -->
+      <result column="unit" property="unit"/>
+   </resultMap>
+
+    <resultMap type="com.op.dto.insurances.InsurantDateLimitDTO" id="InsurantDateLimitDTOReturnMap">
+		<!-- id -->
+      <id column="id" property="id"/>
+		<!-- 保险产品ID -->
+      <result column="productId" property="productId"/>
+		<!-- 最低保障期限 -->
+      <result column="minDeadline" property="minDeadline"/>
+		<!-- 最长保障期限 -->
+      <result column="maxDeadline" property="maxDeadline"/>
+		<!-- 期限单位（1：天；2：年） -->
+      <result column="unit" property="unit"/>
+      
+       <!-- 保险价格集合 -->
+      <collection property="priceList" ofType="com.op.entity.insurances.InsurancePrice" column="id" select="InsurancePriceMapper.findPriceByIdl_id"></collection>
+      
+   </resultMap>
+   
+   
+  
+  <select id="findDateLimitByProductId" parameterType="int" resultMap="InsurantDateLimitDTOReturnMap">
+  		select 
+  			id,productId ,minDeadline ,maxDeadline ,unit 
+  		from 
+  			InsurantDateLimit
+  		where
+  			productId = #{productId}	
+  </select>
+  
+  <insert id="saveDateLimit" parameterType="com.op.dto.insurances.InsurancesAddDTO" keyProperty="id" keyColumn="id">
+  		insert into InsurantDateLimit(id,productId ,minDeadline ,maxDeadline ,unit )
+  		values
+  		(#{id},#{productId} ,#{minDeadline} ,#{maxDeadline} ,#{unit} )
+  </insert>
+  
+  <delete id="deleteDateLimit" parameterType="int">
+  	delete from InsurantDateLimit
+  	where
+  	 productId = #{productId}	
+  </delete>
+	
+</mapper>

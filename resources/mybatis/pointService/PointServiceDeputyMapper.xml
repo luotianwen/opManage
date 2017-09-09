@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- 地点服务基本信息表(副)(pointServiceDeputy)Mapper -->
+<mapper namespace="pointServiceDeputyMapper">
+    <!--mybatis ehcache缓存配置 -->
+    <!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+    <!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+    <!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>  -->
+
+	<sql id="Base_Column_List">
+    ps_id,ps_zh_name ,ps_en_name ,ps_type ,ps_province_id ,ps_city_id ,ps_countys_id ,ps_address ,ps_coordinates ,ps_traffic ,ps_create_time ,ps_create_user_id ,ps_state ,ps_error_comment ,ps_check_user_id ,ps_point_service_id ,ps_is_add  
+    </sql>
+
+    <resultMap type="com.op.dto.point.PointServiceDeputyDTO" id="PointServiceDeputyDTOReturnMap">
+		<!-- id -->
+      <id column="ps_id" property="ps_id"/>
+		<!-- 地点中文名 -->
+      <result column="ps_zh_name" property="ps_zh_name"/>
+		<!-- 地点英文名 -->
+      <result column="ps_en_name" property="ps_en_name"/>
+		<!-- 终极类型 -->
+      <result column="ps_type" property="ps_type"/>
+		<!-- 省id -->
+      <result column="ps_province_id" property="ps_province_id"/>
+		<!-- 市id -->
+      <result column="ps_city_id" property="ps_city_id"/>
+		<!-- 区/县id -->
+      <result column="ps_countys_id" property="ps_countys_id"/>
+		<!-- 省id -->
+      <result column="ps_province_name" property="ps_province_name"/>
+		<!-- 市id -->
+      <result column="ps_city_name" property="ps_city_name"/>
+		<!-- 区/县id -->
+      <result column="ps_countys_name" property="ps_countys_name"/>
+		<!-- 详细地址 -->
+      <result column="ps_address" property="ps_address"/>
+		<!-- 位置经纬度坐标（保存实例： (纬度,经度）） -->
+      <result column="ps_coordinates" property="ps_coordinates"/>
+		<!-- 交通 -->
+      <result column="ps_traffic" property="ps_traffic"/>
+		<!-- 创建时间 -->
+      <result column="ps_create_time" property="ps_create_time"/>
+		<!-- 创建用户id -->
+      <result column="ps_create_user_id" property="ps_create_user_id"/>
+		<!-- 创建用户id -->
+      <result column="ps_create_user_name" property="ps_create_user_name"/>
+		<!-- 发布状态(10：待审核；20：审核中；30：审核成功；40：审核失败；) -->
+      <result column="ps_state" property="ps_state"/>
+		<!-- 审核失败备注 -->
+      <result column="ps_error_comment" property="ps_error_comment"/>
+		<!-- 审核人 -->
+      <result column="ps_check_user_id" property="ps_check_user_id"/>
+		<!-- 审核人 -->
+      <result column="ps_check_user_name" property="ps_check_user_name"/>
+		<!-- 修改地点服务ID -->
+      <result column="ps_point_service_id" property="ps_point_service_id"/>
+		<!-- 新增标识（0：是：1：否） -->
+      <result column="ps_is_add" property="ps_is_add"/>
+      
+      <!-- 认证信息 -->
+      <association property="pointAuthDTO" javaType="com.op.dto.pointService.PointAuthDTO" column="{ps_id=ps_id,ps_state=ps_state}" select="pointAuthMapper.findByPsId"></association>
+		
+       <!-- 营业时间 -->
+      <collection property="businessTime" ofType="com.op.entity.pointService.BusinessTimeDeputy" column="ps_id" select="businessTimeDeputyMapper.getDataByPsId" ></collection>
+       <!-- 联系方式 -->
+      <collection property="contact" ofType="com.op.entity.pointService.PointServiceContactDeputy" column="ps_id" select="pointServiceContactDeputyMapper.getDataByPsId" ></collection>
+       <!-- 图片-->
+      <collection property="imgs" ofType="com.op.entity.pointService.PointServiceImgDeputy" column="ps_id" select="pointServiceImgDeputyMapper.getDataByPsId" ></collection>
+
+   </resultMap>
+   
+     <!-- 分页获取所有待审核的地点信息 -->
+   <select id="getCheckListPage" parameterType="Page" resultType="com.op.dto.point.PointServiceDeputyDTO">
+   		select 
+   			ps_id,ps_zh_name ,ps_en_name ,ps_type ,p.name ps_province_name ,
+   			ci.name ps_city_name ,co.name ps_countys_name ,ps_address ,ps_coordinates ,ps_traffic ,ps_create_time 
+   			,uName ps_create_user_name ,ps_state ,ps_error_comment ,ps_check_user_id ,ps_point_service_id  ,ps_is_add 
+   		from 	
+   			PointServiceDeputy
+		left join  PROVINCES p on p.code = ps_province_id
+		left join  CITYS ci on ci.code = ps_city_id
+		left join  COUNTYS co on co.code = ps_countys_id	
+		left join  users on u_id = ps_create_user_id	
+   		<!-- where
+   			ps_state in (10,20,40) -->
+   		order by ps_create_time desc
+   </select>
+   
+     <!--根据id获取详细信息 -->
+   <select id="getPointById" parameterType="String" resultMap="PointServiceDeputyDTOReturnMap">
+   		select 
+   			ps_id,ps_zh_name ,ps_en_name ,ps_type ,p.name ps_province_name ,
+   			ci.name ps_city_name ,co.name ps_countys_name ,ps_address ,ps_coordinates ,ps_traffic ,ps_create_time 
+   			,u1.uName ps_create_user_name ,ps_state ,ps_error_comment ,u2.uName ps_check_user_name,ps_check_user_id ,ps_point_service_id  ,ps_is_add 
+   		from 	
+   			PointServiceDeputy
+		left join  PROVINCES p on p.code = ps_province_id
+		left join  CITYS ci on ci.code = ps_city_id
+		left join  COUNTYS co on co.code = ps_countys_id	
+		left join  users u1 on u1.u_id = ps_create_user_id		
+		left join  users u2 on u2.u_id = ps_check_user_id	
+   		where
+   			ps_id = #{ps_id}
+   </select>
+   
+   <!-- 更新审核结果   -->
+   <update id="checkError" parameterType="java.util.Map">
+   		update PointServiceDeputy
+   		set ps_check_user_id = #{ps_check_user_id},ps_error_comment = #{ps_error_comment},ps_state = ${ps_state}
+   		where ps_id = #{ps_id}
+   </update>
+   
+   <!-- 更新审核结果 -->
+   <update id="checkTrue" parameterType="java.util.Map">
+   		update PointServiceDeputy set 
+   		ps_check_user_id = #{ps_check_user_id},
+   		ps_error_comment = #{ps_error_comment},
+   		ps_state = ${ps_state},
+   		ps_point_service_id = #{update_id}
+   		where ps_id = #{ps_id}
+   </update>
+	
+	
+	<select id="findPointServiceDeputyByPsId" parameterType="String" resultType="com.op.entity.pointService.PointServiceDeputy">
+		select
+			ps_id,ps_zh_name,ps_en_name,ps_type,ps_province_id,ps_city_id,ps_countys_id,
+			ps_address,ps_coordinates,ps_traffic,ps_create_time,ps_create_user_id,
+			ps_state,ps_error_comment,ps_check_user_id,ps_point_service_id,ps_is_add
+		from
+			PointServiceDeputy
+		where
+			ps_id = #{ps_id}
+	</select>
+	
+</mapper>

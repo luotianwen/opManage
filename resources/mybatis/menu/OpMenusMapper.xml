@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="opMenusMapper">
+	<sql id="Base_Column_List">
+    opm_id,opm_name ,opm_parent_id ,opm_order ,opm_path ,opm_last_update_time ,opm_last_update_user 
+    </sql>
+
+    <resultMap type="com.op.entity.menu.OpMenus" id="OpMenusReturnMap">
+      <id column="opm_id" property="opm_id"/>
+      <result column="opm_name" property="opm_name"/>
+      <result column="opm_parent_id" property="opm_parent_id"/>
+      <result column="opm_order" property="opm_order"/>
+      <result column="opm_path" property="opm_path"/>
+      <result column="opm_last_update_time" property="opm_last_update_time"/>
+      <result column="opm_last_update_user" property="opm_last_update_user"/>
+   </resultMap>
+   
+   
+   <!-- 全部菜单 -->
+   <select id="findAllMenus" resultType="com.op.entity.menu.OpMenus">
+   select <include refid="Base_Column_List"/>
+   from opMenus
+   where 1=1
+   </select>
+   
+   <!-- 查询所有前台菜单 -->
+   <select id="menusPage" parameterType="page" resultType="com.op.entity.menu.OpMenus" >
+   select opm_id,opm_name ,opm_parent_id ,opm_order ,opm_path ,opm_last_update_time ,u.uname opm_last_update_user 
+   from opMenus op
+   join users u on op.opm_last_update_user=u.u_id
+   WHERE opm_parent_id='0'
+   ORDER BY opm_order
+   </select>
+   
+   <!-- 添加菜单功能，查询顶级菜单 -->
+   <select id="goMenuAddGetParentList" resultType="com.op.entity.menu.OpMenus" >
+   SELECT <include refid="Base_Column_List" />
+   FROM opMenus
+   WHERE 1=1 
+   AND opm_parent_id = '0'
+   ORDER BY opm_order
+   </select>
+   
+   <!-- 保存菜单 -->
+   <insert id="saveMenu" parameterType="com.op.entity.menu.OpMenus" >
+   INSERT INTO opMenus
+   (
+   	opm_name ,opm_parent_id ,opm_order ,opm_path ,opm_last_update_time ,opm_last_update_user 
+   )
+   VALUES
+   (
+  	#{opm_name} ,#{opm_parent_id} ,#{opm_order} ,#{opm_path} ,#{opm_last_update_time} ,#{opm_last_update_user}
+   )
+   </insert>
+   
+   <!-- 跳转菜单编辑页面 -->
+   <select id="getMenuBymId" parameterType="String" resultType="com.op.entity.menu.OpMenus" >
+   SELECT <include refid="Base_Column_List"/>
+   FROM opMenus
+   WHERE opm_id=#{id}
+   </select>
+   
+   <!-- update -->
+   <update id="updateMenu" parameterType="com.op.entity.menu.OpMenus">
+   UPDATE opMenus
+	SET opm_name    =#{opm_name},
+	  opm_order     =#{opm_order},
+	  opm_path      =#{opm_path},
+	  opm_last_update_time=#{opm_last_update_time},
+	  opm_last_update_user=#{opm_last_update_user}
+	WHERE opm_id    = #{opm_id}
+   </update>
+   
+   <!-- 删除 -->
+   <delete id="deleteMenuMain" parameterType="java.lang.String">
+	   	DELETE FROM opMenus WHERE opm_parent_id=#{opm_id} OR opm_id=#{opm_id}
+   </delete>
+   
+   <!-- 删除 -->
+   <delete id="deleteMenuChildren" parameterType="java.lang.String">
+	   	DELETE FROM opMenus WHERE opm_id=#{opm_id}
+   </delete>
+   
+   <!-- 查询子菜单列表 -->
+   <select id="getMenuListById" parameterType="String" resultType="com.op.entity.menu.OpMenus" >
+   select opm_id,opm_name ,opm_parent_id ,opm_order ,opm_path ,opm_last_update_time ,u.uname opm_last_update_user 
+   from opMenus op
+   join users u on op.opm_last_update_user=u.u_id
+   WHERE opm_parent_id=#{opm_parent_id}
+   ORDER BY opm_order
+   </select>
+</mapper>

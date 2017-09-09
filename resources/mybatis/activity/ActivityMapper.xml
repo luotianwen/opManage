@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="activityMapper">
+
+    <!--mybatis ehcache缓存配置 -->
+    <!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志   （useCache="false" 不使用 ）   -->
+    <cache type="org.mybatis.caches.ehcache.LoggingEhcache" />
+    <!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>  -->
+
+
+	<sql id="Base_Column_List">
+    id,ch_id ,cl_id ,title ,province ,city ,district ,address ,activityTime ,activityWeek ,endTime 
+    ,details ,isCharge ,price ,in_id ,isInsurance ,coordinates ,longitude ,latitude ,altitudes 
+    ,sc_id ,duration ,isDrawingLine ,l_id ,refundCondition ,state ,publishesTime ,lastUpdateTime
+    ,eventCount ,l_coordinates ,l_province ,l_city ,l_district ,characteristic ,highlights ,createUser 
+    ,needUserNum ,alreadyInNum ,confirmUserNum ,a_careful ,a_price_deatil_on ,a_price_deatil_off 
+    ,a_enroll_end_time ,a_schedule ,a_difficulty_type ,a_date_length ,a_children_age 
+        
+    </sql>
+
+   <resultMap type="com.op.entity.activity.Activity" id="ActivityReturnMap">
+      <id column="id" property="id"/>
+   </resultMap>
+   
+   <!-- 根据ID查询活动Map -->
+   <resultMap type="com.op.entity.activity.Activity" id="ActivityCollections">
+      <id column="id" property="id"/>
+      
+      <!-- 查询活动类型集合 -->
+      <collection property="activeTypes" ofType="com.op.entity.activity.ActiveTypes" column="id" select="activeTypesMapper.findTypesByActiveId"></collection>
+      
+      <!-- 查询该活动所有线路信息 -->
+      <collection property="lines" ofType="com.op.entity.lines.SubsectionLines" column="l_id" select="linesMapper.selectListBylAlId" ></collection>
+      
+   </resultMap>
+  	<!-- 根据活动ID查询活动详情 -->
+   <select id="detailById" parameterType="int" resultMap="ActivityCollections" >
+   	select 
+   	<include refid="Base_Column_List" />
+   	from activity
+   	where id=#{id}
+   </select>
+   
+   
+ 
+	 
+	 
+	
+	<!-- 获取待审活动列表 -->
+	<select id="getActivityByStateListPage" parameterType="Page" resultType="com.op.entity.activity.ActivityInfo" useCache="false">
+		SELECT
+		ac.id,ch_name ,cl_name,title,publishesTime,state    ,u.uName AS userName,us.uName AS auditor,auditTime,auditNotes
+		from activity ac
+    	left join users u on u.u_id = createUser
+    	left join users us on us.u_id = auditor
+    	left join channels ch on ch.ch_id =  ac.ch_id
+     	left join classification cl on cl.cl_id=ac.cl_id   
+		where 
+		<!-- 根据活动发布状态查询数据 -->
+		state in 
+		<foreach item="item" index="index" collection="t.states" open="(" separator="," close=")">
+        	  #{t.states[${index}]}  
+        </foreach>
+		<!-- 按ID查询 -->
+		<if test="t.id!=0">
+			AND id = #{t.id} 
+		</if>
+		<!-- 按活动名称查询 -->
+		<if test="t.title != null and t.title != '' ">
+			AND title LIKE CONCAT(CONCAT('%', #{t.title}),'%')
+		</if>
+		<!-- 按频道查询 -->
+		<if test="t.ch_id!=0">
+			AND ac.ch_id = #{t.ch_id} 
+		</if>
+		<!-- 按分类查询 -->
+		<if test="t.cl_id!=0">
+			AND ac.cl_id = #{t.cl_id} 
+		</if>
+		<!-- 按发布者身份查询 -->
+		<if test="t.uType!=0">
+			AND u.uType = #{t.uType} 
+		</if>
+		order by publishesTime desc
+	</select>
+	
+	<!-- 活动审核 -->
+   <update id="updateActivityState" parameterType="java.util.HashMap" >
+	   update activity set  state = #{state} , auditor = #{auditor}
+	    , auditTime = #{auditTime} , auditNotes = #{auditNotes}
+	   where id = #{id}
+   </update>
+	
+	
+	<!-- 获取待审活动列表 -->
+	<select id="getActivityByClose" parameterType="Page" resultType="com.op.entity.activity.ActivityInfo" useCache="false">
+		SELECT
+		ac.id,ch_name ,cl_name,title,publishesTime,state,a_close,
+		u.uName AS userName,us.uName AS auditor,auditTime,auditNotes
+		from activity ac
+    	left join users u on u.u_id = createUser
+    	left join users us on us.u_id = auditor
+    	left join channels ch on ch.ch_id =  ac.ch_id
+     	left join classification cl on cl.cl_id=ac.cl_id   
+		where 
+		a_close !=0
+		order by publishesTime desc
+	</select>
+	
+	<!-- 关闭活动 -->
+	<update id="closeActive" parameterType="java.util.Map">
+		update activity
+		set a_close = ${state}
+		<if test="state==2">
+			,state = 15,
+			lastUpdateTime = now()
+		</if>
+		
+		where id = #{id}
+	</update>
+	
+	
+</mapper>

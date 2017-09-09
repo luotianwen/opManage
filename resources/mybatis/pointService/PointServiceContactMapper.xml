@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- 地点服务联系方式(pointServiceContact)Mapper -->
+<mapper namespace="pointServiceContactMapper">
+    <!--mybatis ehcache缓存配置 -->
+    <!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+    <!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+    <!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>  -->
+
+	<sql id="Base_Column_List">
+    psc_id,psc_point_service_id ,psc_number 
+    </sql>
+
+    <resultMap type="com.op.entity.pointService.PointServiceContact" id="PointServiceContactReturnMap">
+		<!-- id -->
+      <id column="psc_id" property="psc_id"/>
+		<!-- 地点服务id -->
+      <result column="psc_point_service_id" property="psc_point_service_id"/>
+		<!-- 联系方式 -->
+      <result column="psc_number" property="psc_number"/>
+   </resultMap>
+   
+  
+   
+   
+   <!-- 	添加审核成功数据 -->
+   <insert id="saveByCheck" parameterType="java.util.Map" useGeneratedKeys="false">
+		insert into PointServiceContact (psc_point_service_id ,psc_number )
+		select 
+		    #{update_id} as psc_point_service_id ,psc_number  
+		from 
+		    PointServiceContactDeputy
+		where 
+		    psc_point_service_id = #{ps_id}
+   </insert>
+	
+	<!-- 删除之前联系电话数据 -->
+	<delete id="deleteByCheck" parameterType="String">
+		delete from PointServiceContact
+		where psc_point_service_id = #{update_id}
+	</delete>
+	
+</mapper>

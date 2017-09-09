@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="commentPhoMapper">
+	 
+
+	<select id="getCommentPhoListPage" parameterType="page" resultType="com.op.splot.entity.CommentPho">
+		  SELECT
+		<![CDATA[
+        id ,cid ,pho 
+	    ]]>
+		  FROM s_comment_pho 
+		WHERE 1=1
+	</select>
+	 
+	<select id="getCommentPhoById" parameterType="com.op.splot.entity.CommentPho" resultType="com.op.splot.entity.CommentPho">
+		SELECT
+		 <![CDATA[
+        id ,cid ,pho 
+	    
+	        FROM s_comment_pho 
+	        WHERE 
+
+		        id = #{id } 
+	    ]]>
+	</select>
+	<insert id="saveCommentPho" parameterType="com.op.splot.entity.CommentPho">
+		 <![CDATA[
+        INSERT INTO s_comment_pho (
+        	id ,
+        	cid ,
+        	pho 
+        ) VALUES (
+        	#{id} ,
+        	#{cid} ,
+        	#{pho} 
+        )
+    ]]>
+	</insert>
+	<update id="updateCommentPho" parameterType="com.op.splot.entity.CommentPho">
+		<![CDATA[
+        UPDATE s_comment_pho SET
+	        cid = #{cid} ,
+	        pho = #{pho} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+	 
+	 <!-- 根据点评ID查询 -->
+	 <select id="findCommentPhoByCid" parameterType="String" resultType="com.op.splot.entity.CommentPho">
+	 	select id ,cid ,pho 
+	    FROM s_comment_pho
+	    where cid = #{id}
+	 </select>
+	 
+</mapper>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ticketinformationMapper">
+	 
+
+	<select id="getTicketinformationListPage" parameterType="page" resultType="com.op.splot.entity.Ticketinformation">
+		SELECT
+
+        t.id,sp.id as sid ,sp.name as name ,t.peakseasonfare ,t.offseasorates
+
+		FROM s_spot sp
+		left join s_ticketinformation t on t.sid=sp.id
+		WHERE 1=1
+		<if test="t!='' and t!=null">
+			and sp.name LIKE CONCAT(CONCAT('%', #{t}),'%')
+		</if>
+		order by sp.cdate desc,sp.id desc
+	</select>
+	 
+	<select id="getTicketinformationById" parameterType="String" resultType="com.op.splot.entity.Ticketinformation">
+		SELECT
+
+        st.id ,sid ,peakseasonfare ,offseasorates ,becareful ,Preferentialinformation ,sp.name  name
+	    
+	        FROM s_spot sp
+	        left join s_ticketinformation st on sp.id = st.sid
+	        WHERE 
+
+		        st.id = #{id }
+
+	</select>
+	<insert id="saveTicketinformation" parameterType="com.op.splot.entity.Ticketinformation">
+		 <![CDATA[
+        INSERT INTO s_ticketinformation (
+        	id ,
+        	sid ,
+        	peakseasonfare ,
+        	offseasorates ,
+        	becareful ,
+        	Preferentialinformation 
+        ) VALUES (
+        	#{id} ,
+        	#{sid} ,
+        	#{peakseasonfare} ,
+        	#{offseasorates} ,
+        	#{becareful} ,
+        	#{preferentialinformation} 
+        )
+    ]]>
+		<selectKey keyProperty="id" resultType="int">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+	</insert>
+	<update id="updateTicketinformation" parameterType="com.op.splot.entity.Ticketinformation">
+		<![CDATA[
+        UPDATE s_ticketinformation SET
+        	sid = #{sid},
+	        peakseasonfare = #{peakseasonfare} ,
+	        offseasorates = #{offseasorates} ,
+	        becareful = #{becareful} ,
+	        Preferentialinformation = #{preferentialinformation} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+	 
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- 游记内容(travelsContent)Mapper -->
+<mapper namespace="travelsContentMapper">
+    <!--mybatis ehcache缓存配置 -->
+    <!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+    <!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+    <!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>  -->
+
+	<sql id="Base_Column_List">
+    id,travels_id ,content_type ,content ,photo_id ,title_id ,video_id ,sort 
+    </sql>
+
+    <resultMap type="com.op.entity.travels.TravelsContent" id="TravelsContentReturnMap">
+		<!-- id -->
+      <id column="id" property="id"/>
+		<!-- 游记ID -->
+      <result column="travels_id" property="travels_id"/>
+		<!-- 内容类型（1：文字；2：图片；3：视频；4：段落标题） -->
+      <result column="content_type" property="content_type"/>
+		<!-- 内容 -->
+      <result column="content" property="content"/>
+		<!-- 图片ID -->
+      <result column="photo_id" property="photo_id"/>
+		<!-- 段落标题ID -->
+      <result column="title_id" property="title_id"/>
+		<!-- 视频ID -->
+      <result column="video_id" property="video_id"/>
+		<!-- 排序 -->
+      <result column="sort" property="sort"/>
+   </resultMap>
+   
+  
+	
+</mapper>

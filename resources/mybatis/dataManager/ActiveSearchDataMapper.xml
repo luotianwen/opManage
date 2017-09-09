@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="activeSearchDataMapper">
+	<sql id="Base_Column_List">
+    asd_id,asd_name ,asd_value ,asd_parent_id ,asd_type ,asd_order_num ,asd_create_time ,asd_create_user ,asd_update_time ,asd_update_user 
+    ,asd_update_user_name
+    </sql>
+
+	<!-- 根据ID查询数据 -->
+	<select id="selectById" parameterType="java.lang.String" resultType="com.op.entity.dataManager.ActiveSearchData" >
+	select <include refid="Base_Column_List"/>
+	from activeSearchData
+	where asd_id=#{asd_id}
+	</select>
+
+	<!-- 更新数据 -->
+	<update id="updateData" parameterType="com.op.entity.dataManager.ActiveSearchData">
+	update activeSearchData set
+	asd_name=#{asd_name},asd_value=#{asd_value},asd_order_num=#{asd_order_num},asd_update_time=#{asd_update_time} 
+	,asd_update_user=#{asd_update_user} ,asd_update_user_name=#{asd_update_user_name}
+	<if test="asd_type != 0">
+	,asd_type=#{asd_type}
+	</if>
+	where asd_id=#{asd_id}
+	</update>
+	
+	<!-- 删除数据 -->
+	<delete id="deleteData" parameterType="java.util.HashMap">
+		<choose>
+			<when test="tp == 'main'">
+			delete from activeSearchData where asd_id=#{asd_id} or asd_parent_id=#{asd_id}
+			</when>
+			<otherwise>
+			delete from activeSearchData where asd_id=#{asd_id}
+			</otherwise>
+		</choose>
+	</delete>
+
+    <resultMap type="com.op.entity.dataManager.ActiveSearchData" id="ActiveSearchDataReturnMap">
+      <id column="asd_id" property="asd_id"/>
+      
+      <!-- 查询子数据 -->
+      <collection property="childrenList" ofType="com.op.entity.dataManager.ActiveSearchData" column="asd_id" select="activeSearchDataMapper.findchildrenData" ></collection>
+   </resultMap>
+   
+   <!-- 查询子数据 -->
+   <select id="findchildrenData" parameterType="java.lang.String" resultType="com.op.entity.dataManager.ActiveSearchData" >
+    SELECT <include refid="Base_Column_List" />
+	FROM activeSearchData
+	where asd_parent_id = #{asd_id}
+	ORDER BY asd_order_num
+   </select>
+   
+   <!-- 活动筛选条件集合：查询顶级条件   -->
+   <select id="selectListPage" parameterType="Page" resultMap="ActiveSearchDataReturnMap" >
+    SELECT <include refid="Base_Column_List" />
+	FROM activeSearchData
+	where asd_parent_id = '0'
+	ORDER BY asd_order_num
+   </select>
+   
+   
+   <!-- 活动筛选条件集合：查询顶级条件   -->
+   <select id="selectList" resultType="com.op.entity.dataManager.ActiveSearchData">
+   SELECT asd_id,
+	  asd_name ,
+	  asd_type
+	FROM activeSearchData asd
+	where asd.asd_parent_id = '0'
+	ORDER BY asd.asd_order_num
+   </select>
+   
+   <!-- 保存数据 -->
+	<sql id="Save_Base_Column_List">
+    asd_id,asd_name ,asd_value ,asd_parent_id ,asd_type ,asd_order_num ,asd_create_time ,asd_create_user ,asd_update_time ,asd_update_user 
+    ,asd_update_user_name
+    </sql>
+   <insert id="saveData" parameterType="com.op.entity.dataManager.ActiveSearchData" >
+   insert into activeSearchData
+   (
+   	asd_name ,asd_value ,asd_parent_id ,asd_type ,asd_order_num ,asd_create_time ,asd_create_user ,asd_update_time ,asd_update_user 
+    ,asd_update_user_name
+   )
+   values (
+   #{asd_name },#{asd_value },#{asd_parent_id },#{asd_type },#{asd_order_num }
+   ,#{asd_create_time },#{asd_create_user },#{asd_update_time },#{asd_update_user },#{asd_update_user_name }
+   )
+   </insert>
+	
+</mapper>

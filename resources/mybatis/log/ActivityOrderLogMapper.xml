@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="activityOrderLogMapper">
+	<sql id="Base_Column_List">
+    aol_id,aol_create_time ,aol_info ,aol_create_user_id ,aol_create_user_name 
+    </sql>
+    
+   <resultMap type="com.op.entity.log.ActivityOrderLog" id="OrderLogReturnMap">
+      <id column="aol_id" property="aol_id"/>
+      <result column="aol_create_time" property="aol_create_time"/>
+      <result column="aol_info" property="aol_info"/>
+      <result column="aol_create_user_id" property="aol_create_user_id"/>
+      <result column="aol_create_user_name" property="aol_create_user_name"/>
+      <result column="aol_order_id" property="aol_order_id"/>
+   </resultMap>
+   
+   <!-- 插入活动退款日志 -->
+   <insert id="insertLog" parameterType="java.util.HashMap" useGeneratedKeys="false" >
+	   insert into ACTIVEORDERLOG(AOL_ID,AOL_INFO,AOL_CREATE_USER_ID,AOL_CREATE_USER_NAME,AOL_ORDER_ID)
+        select Activeorderlog_Sequence.nextval,a.* from (
+         <foreach item="item" index="index" collection="asu_order_id" separator="union all">
+        	select  #{aol_info},#{aol_create_user_id},#{aol_create_user_name},#{asu_order_id[${index}]}  from dual  
+        </foreach>
+        ) a  
+   </insert>
+ 
+ 
+    <!-- 插入活动退款日志 -->
+   <insert id="insertLog2" parameterType="java.util.HashMap" useGeneratedKeys="false" >
+	   insert into ACTIVEORDERLOG(AOL_ID,AOL_INFO,AOL_CREATE_USER_ID,AOL_CREATE_USER_NAME,AOL_ORDER_ID)
+        select Activeorderlog_Sequence.nextval,a.* from (
+         
+        	select *  from (select  #{aol_info},#{aol_create_user_id},#{aol_create_user_name}  from dual  ) ,
+			(select asu_order_id from ACTIVESIGNUP where REFUND_BATCH_NUMBER =  #{batch_no} )
+       
+        ) a  
+   </insert>
+   
+    <!-- 插入活动退款日志 -->
+   <insert id="insertLogByList" parameterType="java.util.List" useGeneratedKeys="false" >
+	   insert into ACTIVEORDERLOG(AOL_ID,AOL_INFO,AOL_CREATE_USER_ID,AOL_CREATE_USER_NAME,AOL_ORDER_ID)
+        select Activeorderlog_Sequence.nextval,a.* from (
+         <foreach collection="list" item="item" index="index" separator="union all">
+        	select  #{item.aol_info},#{item.aol_create_user_id},#{item.aol_create_user_name},
+  			(select asu_order_id from ACTIVESIGNUP where asu_trade_no = #{item.asu_trade_no} and refund_batch_number = #{item.batch_no}) 
+			  from dual  
+        </foreach>
+        ) a  
+   </insert>  
+   
+   
+   	<!--  根据订单ID查询退款日志 -->
+	<select id="getLogByOrderId" parameterType="java.lang.String" resultType="com.op.entity.log.ActivityOrderLog">
+		select  aol_create_time ,aol_info ,aol_create_user_id ,aol_create_user_name 
+		from ACTIVEORDERLOG
+		where AOL_ORDER_ID = #{AOL_ORDER_ID }
+		order by AOL_CREATE_TIME desc
+	</select>
+   
+   
+   
+</mapper>

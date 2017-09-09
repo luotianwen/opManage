@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- 地点项目/套餐适合人群字典表(pointComboCrowdType)Mapper -->
+<mapper namespace="pointComboCrowdTypeMapper">
+    <!--mybatis ehcache缓存配置 -->
+    <!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+    <!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+    <!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>  -->
+
+	<sql id="Base_Column_List">
+    id,pcct_describe 
+    </sql>
+
+    <resultMap type="com.op.entity.pointService.PointComboCrowdType" id="PointComboCrowdTypeReturnMap">
+		<!-- id -->
+      <id column="id" property="id"/>
+		<!-- 说明 -->
+      <result column="pcct_describe" property="pcct_describe"/>
+   </resultMap>
+   
+   <!-- 分页获取字典表所有数据 -->
+   <select id="getListPage" parameterType="page" resultType="com.op.entity.pointService.PointComboCrowdType">
+   		select 
+   			id,pcct_describe
+   		from
+   			PointComboCrowdType
+   		where 1=1
+   		<if test="t != null and t != '' ">
+   			and pcct_describe LIKE CONCAT(CONCAT('%', #{t}),'%')
+   		</if>	
+   		order by  id  desc 
+   </select>
+ 
+   <select id="findById" parameterType="String" resultType="com.op.entity.pointService.PointComboCrowdType">
+   		select 
+   			id,pcct_describe
+   		from
+   			PointComboCrowdType
+   		where 
+   			id = #{id}	
+   </select>
+ 
+   <select id="getAll" resultType="com.op.entity.pointService.PointComboCrowdType">
+   		select 
+   			id,pcct_describe
+   		from
+   			PointComboCrowdType
+   </select>
+  
+  <update id="update" parameterType="com.op.entity.pointService.PointComboCrowdType">
+  		 update PointComboCrowdType set  
+   			pcct_describe = #{pcct_describe}
+   		 where
+   			id = #{id}
+  </update>
+  
+  <insert id="save" parameterType="com.op.entity.pointService.PointComboCrowdType" useGeneratedKeys="false">
+  		insert into  PointComboCrowdType (pcct_describe)
+  		 values (#{pcct_describe})
+  </insert>
+	
+	
+	<!-- 根据项目ID查询适合人群 -->
+	<select id="findPointComboCrowdTypeByPspId" parameterType="String" resultType="com.op.entity.pointService.PointComboCrowdType">
+		select pcct_describe from pointComboCrowdType pcct
+		left join projectCrowdType pct on pct.crowdTypeId = pcct.id
+		where projectId = #{psp_id}
+	</select>
+
+</mapper>

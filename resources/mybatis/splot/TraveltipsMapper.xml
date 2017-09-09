@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="traveltipsMapper">
+	 
+
+	<select id="getTraveltipsListPage" parameterType="page" resultType="com.op.splot.entity.Traveltips">
+		  SELECT
+			t.id ,s.name,s.id as sid ,t.bbusyseason ,t.ebusyseason ,t.blowseason ,t.elowseason ,t.notice ,t.phone ,t.besttime ,t.aboutbrowsingtime ,t.attractionsfacilities
+			FROM
+			s_spot s
+			left join
+			s_traveltips t
+			on t.sid=s.id
+			WHERE 1=1
+			<if test="t!= null and t!= '' ">
+				AND s.name LIKE CONCAT(CONCAT('%', #{t}),'%')
+			</if>
+		order by s.cdate desc,s.id desc
+	</select>
+	 
+	<select id="getTraveltipsById" parameterType="String" resultType="com.op.splot.entity.Traveltips">
+		SELECT
+		 <![CDATA[
+        id ,sid ,bbusyseason ,ebusyseason ,blowseason ,elowseason ,notice ,phone ,besttime ,aboutbrowsingtime ,attractionsfacilities 
+	    
+	        FROM s_traveltips 
+	        WHERE 
+
+		        id = #{id } 
+	    ]]>
+	</select>
+	<insert id="saveTraveltips" parameterType="com.op.splot.entity.Traveltips">
+		 <![CDATA[
+        INSERT INTO s_traveltips (
+        	id ,
+        	sid ,
+        	bbusyseason ,
+        	ebusyseason ,
+        	blowseason ,
+        	elowseason ,
+        	notice ,
+        	phone ,
+        	besttime ,
+        	aboutbrowsingtime ,
+        	attractionsfacilities 
+        ) VALUES (
+        	#{id} ,
+        	#{sid} ,
+        	#{bbusyseason} ,
+        	#{ebusyseason} ,
+        	#{blowseason} ,
+        	#{elowseason} ,
+        	#{notice} ,
+        	#{phone} ,
+        	#{besttime} ,
+        	#{aboutbrowsingtime} ,
+        	#{attractionsfacilities} 
+        )
+    ]]>
+		<selectKey keyProperty="id" resultType="int">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+	</insert>
+	<update id="updateTraveltips" parameterType="com.op.splot.entity.Traveltips">
+		<![CDATA[
+        UPDATE s_traveltips SET
+	        sid = #{sid} ,
+	        bbusyseason = #{bbusyseason} ,
+	        ebusyseason = #{ebusyseason} ,
+	        blowseason = #{blowseason} ,
+	        elowseason = #{elowseason} ,
+	        notice = #{notice} ,
+	        phone = #{phone} ,
+	        besttime = #{besttime} ,
+	        aboutbrowsingtime = #{aboutbrowsingtime} ,
+	        attractionsfacilities = #{attractionsfacilities} 
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+	 
+</mapper>

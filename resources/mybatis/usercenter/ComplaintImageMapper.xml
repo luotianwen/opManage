@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="complaintImageMapper">
+	<sql id="Base_Column_List">
+    cimg_id,cl_id ,img_url 
+    </sql>
+
+    <resultMap type="com.op.entity.usercenter.ComplaintImage" id="ComplaintImageReturnMap">
+      <id column="cimg_id" property="cimg_id"/>
+      <result column="cl_id" property="cl_id"/>
+      <result column="img_url" property="img_url"/>
+   </resultMap>
+   
+   <select id="selectCI" resultType="com.op.entity.usercenter.ComplaintImage">
+   		select cl_id,img_url from ComplaintImage
+   </select>
+</mapper>

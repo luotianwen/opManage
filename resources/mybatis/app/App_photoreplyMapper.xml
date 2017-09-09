@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 照片评论回复表(app_photoreply)Mapper -->
+<mapper namespace="app_photoreplyMapper">
+	<!--mybatis ehcache缓存配置 -->
+	<!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+	<!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+
+	<sql id="Base_Column_List">
+		pr_id,pd_id ,pc_id ,pr_date ,pr_reply ,pr_byreply ,pr_content ,pr_delete
+	</sql>
+
+	<resultMap type="com.app.entity.photo.App_photoreply" id="App_photoreplyReturnMap">
+		<!-- id -->
+		<id column="pr_id" property="pr_id" />
+		<!-- 描述ID -->
+		<result column="pd_id" property="pd_id"/>
+		<!-- 评论id -->
+		<result column="pc_id" property="pc_id" />
+		<!-- 回复时间 -->
+		<result column="pr_date" property="pr_date" />
+		<!-- 回复人 -->
+		<result column="pr_reply" property="pr_reply" />
+		<!-- 被回复人 -->
+		<result column="pr_byreply" property="pr_byreply" />
+		<!-- 回复内容 -->
+		<result column="pr_content" property="pr_content" />
+		<!-- 删除（0：正常；1：删除） -->
+		<result column="pr_delete" property="pr_delete" />
+	</resultMap>
+
+	<!-- 根据评论ID查询回复 -->
+	<select id="findReplyCommentPage" parameterType="Page" resultType="com.app.dto.photo.App_photoreplyDTO">
+		select
+		pr_id,pd_id,pc_id ,pr_date ,pr_reply,pr_byreply,r.uName rName,r.uHeadImg rHeadImg,
+		br.uName brName,br.uHeadImg brHeadImg,pr_content ,pr_delete
+		from app_photoreply
+		left join users r on r.u_id = pr_reply
+		left join users br on br.u_id = pr_byreply
+		where pc_id = #{t}
+	</select>
+
+	<!-- 根据ID查询回复 -->
+	<select id="findReplyCommentById" parameterType="String" resultType="com.app.dto.photo.App_photoreplyDTO">
+		select
+		pr_id,pd_id,pc_id ,pr_date ,pr_reply,pr_byreply,r.uName rName,r.uHeadImg rHeadImg,
+		br.uName brName,br.uHeadImg brHeadImg,pr_content ,pr_delete
+		from app_photoreply
+		left join users r on r.u_id = pr_reply
+		left join users br on br.u_id = pr_byreply
+		where pr_id = #{id}
+	</select>
+
+
+</mapper>

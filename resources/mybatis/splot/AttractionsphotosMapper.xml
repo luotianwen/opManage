@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="attractionsphotosMapper">
+	 
+
+	<select id="getAttractionsphotosListPage" parameterType="page" resultType="com.op.splot.dto.splot.AttractionsphotosDTO">
+		SELECT
+		<![CDATA[
+        sp.id ,sp.name ,spl.name level ,type,count(sap.id) num
+	    ]]>
+		FROM s_spot sp
+		left join s_spotlevel spl on spl.id = sp.level
+		left join s_attractionsphotos sap on sap.sid = sp.id and sap.status=0
+		WHERE 1=1
+		<if test="t!='' and t!=null">
+			and sp.name LIKE CONCAT(CONCAT('%', #{t}),'%')
+		</if>
+		GROUP BY sp.id
+		order by sp.cdate desc,sp.id desc
+	</select>
+	 
+	<select id="getAttractionsphotosById" parameterType="String" resultType="com.op.splot.entity.Attractionsphotos">
+		SELECT
+		 <![CDATA[
+        id ,sid ,pho 
+	    
+	        FROM s_attractionsphotos 
+	        WHERE 
+
+		        sid = #{id } and status = 0
+	    ]]>
+	</select>
+	<insert id="saveAttractionsphotos" parameterType="com.op.splot.entity.Attractionsphotos" useGeneratedKeys="true" keyProperty="id">
+		 <![CDATA[
+        INSERT INTO s_attractionsphotos (
+        	sid ,
+        	pho ,
+        	status
+        ) VALUES (
+        	#{sid} ,
+        	#{pho} ,
+        	0
+        )
+    ]]>
+		<selectKey keyProperty="id" resultType="int">
+			SELECT LAST_INSERT_ID() AS ID
+		</selectKey>
+	</insert>
+	<update id="updateAttractionsphotos" parameterType="String">
+		<![CDATA[
+        UPDATE s_attractionsphotos SET
+	        status = 1
+        WHERE 
+	        id = #{id} 
+    ]]>
+	</update>
+	 
+</mapper>

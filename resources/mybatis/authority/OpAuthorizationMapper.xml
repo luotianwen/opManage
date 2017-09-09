@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="opAuthorizationMapper">
+	<sql id="Base_Column_List">
+    opa_id,opa_user_type ,opa_menu_id 
+    </sql>
+
+    <resultMap type="com.op.entity.authority.OpAuthorization" id="OpAuthorizationReturnMap">
+      <id column="opa_id" property="opa_id"/>
+      <result column="opa_user_type" property="opa_user_type"/>
+      <result column="opa_menu_id" property="opa_menu_id"/>
+   </resultMap>
+	
+	<!-- 检测菜单是否关联角色 -->
+	<select id="checkMenusForRoleByMid" parameterType="String" resultType="Integer">
+	select count(*)  from opAuthorization where opa_menu_id = #{opa_menu_id}
+	</select>
+	
+   <!-- 根据角色ID查询菜单ID集合 -->
+	<select id="findMenusByRId" parameterType="String" resultType="String">
+	select opa_menu_id
+	from opAuthorization
+	where opa_user_type=#{opa_user_type}
+	</select>
+	
+	<!-- 删除历史数据 -->
+	<delete id="deleteAuthorizationByRid" parameterType="int">
+	delete from opAuthorization where opa_user_type=#{opa_user_type}
+	</delete>
+	
+	<!-- 保存新数据 -->
+	<insert id="saveAuthorizations" parameterType="java.util.List" useGeneratedKeys="false" >
+	  INSERT INTO opAuthorization (opa_user_type ,opa_menu_id )
+	  VALUES
+	  <foreach collection="list" item="item" separator=",">
+	   (
+	   #{item.opa_user_type},#{item.opa_menu_id}
+	   )
+	  </foreach>
+	</insert>
+	
+	<!-- shiro封装权限 -->
+	<select id="findAuthorizationForMenus" resultType="com.op.dto.shiro.ShiroDTO" >
+	SELECT opa_user_type roleId,om.opm_path path
+	FROM opAuthorization oa
+	LEFT JOIN opMenus om ON oa.opa_menu_id = om.opm_id
+	WHERE om.opm_path IS NOT NULL
+	</select>
+</mapper>

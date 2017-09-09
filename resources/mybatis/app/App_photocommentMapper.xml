@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 评论照片(app_photocomment)Mapper -->
+<mapper namespace="app_photocommentMapper">
+	<!--mybatis ehcache缓存配置 -->
+	<!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+	<!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+
+	<sql id="Base_Column_List">
+		pc_id,pd_id ,pc_cuser ,pc_cdate ,pc_content ,pc_status ,pc_delete
+	</sql>
+
+	<resultMap type="com.app.entity.photo.App_photocomment" id="App_photocommentReturnMap">
+		<!-- id -->
+		<id column="pc_id" property="pc_id" />
+		<!-- 描述ID -->
+		<result column="pd_id" property="pd_id" />
+		<!-- 评论人 -->
+		<result column="pc_cuser" property="pc_cuser" />
+		<!-- 评论时间 -->
+		<result column="pc_cdate" property="pc_cdate" />
+		<!-- 评论内容 -->
+		<result column="pc_content" property="pc_content" />
+		<!-- 评论状态 -->
+		<result column="pc_status" property="pc_status" />
+		<!-- 删除（0：正常；1：删除） -->
+		<result column="pc_delete" property="pc_delete" />
+	</resultMap>
+	
+	<!-- 查询所有照片评论 -->
+	<select id="findAllCommentPage" parameterType="Page" resultType="com.app.dto.photo.App_photocommentDTO">
+		select
+		pc_id,pd_id ,pc_cuser ,pc_cdate ,pc_content ,pc_status ,pc_delete,users.uName,users.uHeadImg
+		from app_photocomment
+		left join users on users.u_id = pc_cuser
+		where pd_id = #{t}
+		order by pc_cdate asc
+	</select>
+
+	<!-- 根据ID查询照片评论 -->
+	<select id="findPhotoCommentById" parameterType="String" resultType="com.app.dto.photo.App_photocommentDTO">
+		select
+		pc_id,pd_id ,pc_cuser ,pc_cdate ,pc_content ,pc_status ,pc_delete,users.uName,users.uHeadImg
+		from app_photocomment
+		left join users on users.u_id = pc_cuser
+		where pc_id = #{id}
+		order by pc_cdate asc
+	</select>
+
+</mapper>

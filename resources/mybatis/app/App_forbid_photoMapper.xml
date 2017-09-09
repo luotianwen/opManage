@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 用户禁言表(app_forbid_photo)Mapper -->
+<mapper namespace="app_forbid_photoMapper">
+	<!--mybatis ehcache缓存配置 -->
+	<!-- 以下两个<cache>标签二选一,第一个可以输出日志,第二个不输出日志 不使用缓存加入useCache="false" -->
+	<!-- <cache type="org.mybatis.caches.ehcache.LoggingEhcache" /> -->
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+
+	<sql id="Base_Column_List">
+		fp_id,fp_forbid_user ,fp_reason ,fp_forbid_time ,fp_dearchive ,fp_cuser ,fp_cdate
+		,fp_updateuser ,fp_updatetime ,fp_status,pd_id ,pc_id ,pr_id
+	</sql>
+
+	<resultMap type="com.app.entity.photo.App_forbid_photo" id="App_forbid_photoReturnMap">
+		<!-- id -->
+		<id column="fp_id" property="fp_id" />
+		<!-- 用户ID -->
+		<result column="fp_forbid_user" property="fp_forbid_user" />
+		<!-- 禁言原因 -->
+		<result column="fp_reason" property="fp_reason" />
+		<!-- 禁言时长 -->
+		<result column="fp_forbid_time" property="fp_forbid_time" />
+		<!-- 解封时间 -->
+		<result column="fp_dearchive" property="fp_dearchive" />
+		<!-- 创建人 -->
+		<result column="fp_cuser" property="fp_cuser" />
+		<!-- 创建时间 -->
+		<result column="fp_cdate" property="fp_cdate" />
+		<!-- 修改人 -->
+		<result column="fp_updateuser" property="fp_updateuser" />
+		<!-- 修改时间 -->
+		<result column="fp_updatetime" property="fp_updatetime" />
+		<!-- 状态(0：禁言；1：解封) -->
+		<result column="fp_status" property="fp_status" />
+		<!-- 描述ID -->
+		<result column="pd_id" property="pd_id" />
+		<!-- 评论ID -->
+		<result column="pc_id" property="pc_id" />
+		<!-- 回复ID -->
+		<result column="pr_id" property="pr_id" />
+		
+	</resultMap>
+
+	<!-- 查询所有用户禁言 -->
+	<select id="findAllForbidPhoto" parameterType="Page" resultMap="App_forbid_photoReturnMap">
+		select
+			fp_id,users.uName fp_forbid_user ,fp_reason ,fp_forbid_time ,fp_dearchive ,
+			cuser.uName fp_cuser ,fp_cdate ,upuser.uName fp_updateuser ,fp_updatetime ,fp_status ,
+			pd_id ,pc_id ,pr_id
+		from app_forbid_photo
+		left join users on users.u_id = fp_forbid_user
+		left join users cuser on cuser.u_id = fp_cuser
+		left join users upuser on upuser.u_id = fp_updateuser
+	</select>
+	
+	<!-- 根据ID查询用户禁言 -->
+	<select id="findForbidPhotoById" parameterType="String" resultMap="App_forbid_photoReturnMap">
+		select
+			fp_id,users.uName fp_forbid_user ,fp_reason ,fp_forbid_time ,fp_dearchive ,
+			cuser.uName fp_cuser ,fp_cdate ,fp_updateuser ,fp_updatetime ,fp_status ,
+			pd_id ,pc_id ,pr_id
+		from app_forbid_photo
+		left join users on users.u_id = fp_forbid_user
+		left join users cuser on cuser.u_id = fp_cuser
+		where fp_id = #{id}
+	</select>
+
+	<!-- 修改用户禁言 -->
+	<update id="updateForbidPhoto" parameterType="com.app.entity.photo.App_forbid_photo">
+		update app_forbid_photo set
+		fp_forbid_time = #{fp_forbid_time}
+		
+		<if test="fp_forbid_time=='day'">
+			,fp_dearchive = DATE_SUB(now(),INTERVAL -1 DAY)
+		</if>
+		<if test="fp_forbid_time=='week'">
+			,fp_dearchive = DATE_SUB(now(),INTERVAL -1 WEEK)
+		</if>
+		<if test="fp_forbid_time=='month'">
+			,fp_dearchive = DATE_SUB(now(),INTERVAL -1 MONTH)
+		</if>
+		<if test="fp_forbid_time=='year'">
+			,fp_dearchive = DATE_SUB(now(),INTERVAL -1 year)
+		</if>
+		<if test="fp_forbid_time=='forever'">
+			,fp_dearchive = null
+		</if>
+		,fp_updateuser = #{fp_updateuser}
+		,fp_updatetime = now()
+		,fp_status = #{fp_status}
+		where fp_id = #{fp_id}
+	</update>
+	
+	<!-- 新增用户禁言 -->
+	<insert id="saveForbidPhoto" parameterType="com.app.entity.photo.App_forbid_photo">
+		insert into app_forbid_photo
+		(
+			fp_forbid_user ,fp_reason ,fp_forbid_time ,fp_dearchive ,fp_cuser,pd_id ,pc_id ,pr_id
+		)
+		values
+		(
+			#{fp_forbid_user },#{fp_reason },#{fp_forbid_time }
+			<if test="fp_forbid_time=='day'">
+				,DATE_SUB(now(),INTERVAL -1 DAY)
+			</if>
+			<if test="fp_forbid_time=='week'">
+				,DATE_SUB(now(),INTERVAL -1 WEEK)
+			</if>
+			<if test="fp_forbid_time=='month'">
+				,DATE_SUB(now(),INTERVAL -1 MONTH)
+			</if>
+			<if test="fp_forbid_time=='year'">
+				,DATE_SUB(now(),INTERVAL -1 year)
+			</if>
+			<if test="fp_forbid_time=='forever'">
+				,null
+			</if>
+			
+			,#{fp_cuser},#{pd_id},#{pc_id},#{pr_id}
+		)
+	</insert>
+	
+	<!-- 查看用户是否已被禁言 -->
+	<select id="findForbidPhotoCount" parameterType="String" resultType="int">
+		select count(0) from app_forbid_photo
+		where (now() <![CDATA[<]]> fp_dearchive  OR fp_dearchive IS NULL) and fp_forbid_user = #{id} and fp_status = 0
+	</select>
+	
+</mapper>
